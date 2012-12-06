@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-  <name>Field's Function Generation</name>
+  <name>fuGen</name>
   <description>Generating const fields like Function&lt;This, FieldType&gt; and getter(if need) for selected fields.</description>
   <version>1.0</version>
   <vendor>Kirill Korgov</vendor>
