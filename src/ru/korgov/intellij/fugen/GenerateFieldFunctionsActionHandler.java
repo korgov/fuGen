@@ -16,6 +16,7 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.util.PropertyUtil;
+import com.intellij.psi.util.PsiTypesUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
@@ -63,7 +64,7 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
         final PsiField existsFieldFu = clazz.findFieldByName(fuConstantName, false);
         if (existsFieldFu == null) {
             final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
-            final String fieldTypeText = field.getType().getCanonicalText();
+            final String fieldTypeText = PsiTypesUtil.boxIfPossible(field.getType().getCanonicalText());
             final String fuClassName = "ru.korgov.util.func.Function";
             final String className = clazz.getQualifiedName();
             final String fuGenericType = "<" + className + ", " + fieldTypeText + ">";
