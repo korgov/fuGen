@@ -1,0 +1,25 @@
+<idea-plugin version="2">
+  <name>Field's Function Generation</name>
+  <description>Generating const fields like Function&lt;This, FieldType&gt; and getter(if need) for selected fields.</description>
+  <version>1.0</version>
+  <vendor>Kirill Korgov</vendor>
+
+  <idea-version since-build="107.105"/>
+
+  <application-components>
+  </application-components>
+
+  <project-components>
+  </project-components>
+
+  <actions>
+      <action id="ru.korgov.intellij.fugen.GenerateFieldFunctionsAction"
+              class="ru.korgov.intellij.fugen.GenerateFieldFunctionsAction" text="Functions"
+              description="Generate Functions">
+          <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
+      </action>
+  </actions>
+
+  <extensions defaultExtensionNs="com.intellij">
+  </extensions>
+</idea-plugin>
