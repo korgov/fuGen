@@ -136,7 +136,7 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
             HintManager.getInstance().showErrorHint(editor, getNothingAcceptedMessage());
             return null;
         }
-        return chooseMembers(allMembers, false, false, project, editor);
+        return chooseMembers(allMembers, false, false, project);
     }
 
     @Override
