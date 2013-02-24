@@ -20,6 +20,8 @@ import com.intellij.psi.util.PsiTypesUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
+import ru.korgov.intellij.fugen.properties.Constants;
+import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,35 +62,45 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
     @Nullable
     private PsiGenerationInfo<PsiField> tryGenerateFunction(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
 
-        final String fuConstantName = createFuConstantName(field);
+        final Project project = clazz.getProject();
+        final PersistentStateProperties properties = PersistentStateProperties.getInstance(project);
+
+        final String fieldName = field.getName();
+        final String fuConstantName = createFuConstantName(properties.getFuConstNamePrefix(), fieldName);
         final PsiField existsFieldFu = clazz.findFieldByName(fuConstantName, false);
         if (existsFieldFu == null) {
-            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
+            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
+            final String fuClassName = properties.getFuClassName();
+            final String fuMmethodName = properties.getFuMethodName();
+
             final String fieldTypeText = PsiTypesUtil.boxIfPossible(field.getType().getCanonicalText());
-            final String fuClassName = "ru.korgov.util.func.Function";
             final String className = clazz.getQualifiedName();
-            final String fuGenericType = "<" + className + ", " + fieldTypeText + ">";
             final String getterMethodName = getterMethod.getName();
-            final String fuFullType = fuClassName + fuGenericType;
-            return new PsiGenerationInfo<PsiField>(
-                    elementFactory.createFieldFromText(
-                            "public static final " + fuFullType + " " +
-                                    fuConstantName + " = new " + fuFullType + "() {\n" +
-                                    "    @Override\n" +
-                                    "    public " + fieldTypeText + " apply(final " + className + " arg) {\n" +
-                                    "        return arg." + getterMethodName + "();\n" +
-                                    "    }\n" +
-                                    "};",
-                            clazz
-                    )
-            );
+
+            final String fuText = properties.getFuTemplate()
+                    .replaceAll(Constants.FU_CLASS_NAME_VAR, fuClassName)
+                    .replaceAll(Constants.THIS_TYPE_VAR, className)
+                    .replaceAll(Constants.FIELD_TYPE_VAR, fieldTypeText)
+                    .replaceAll(Constants.FIELD_GETTER_VAR, getterMethodName)
+                    .replaceAll(Constants.FIELD_NAME_VAR, fieldName)
+                    .replaceAll(Constants.FU_CONST_NAME_VAR, fuConstantName)
+                    .replaceAll(Constants.FU_METHOD_VAR, fuMmethodName)
+                    .replaceAll(Constants.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName));
+
+            return new PsiGenerationInfo<PsiField>(elementFactory.createFieldFromText(fuText, clazz));
         }
         return null;
     }
 
-    private String createFuConstantName(final PsiField field) {
-        final String fieldName = field.getName();
-        final StringBuilder sb = new StringBuilder("TO_");
+    private String upFirstChar(final String fieldName) {
+        if (fieldName != null && !fieldName.isEmpty()) {
+            return Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+        }
+        return "";
+    }
+
+    private String createFuConstantName(final String prefix, final String fieldName) {
+        final StringBuilder sb = new StringBuilder(prefix);
         final int length = fieldName.length();
         for (int i = 0; i < length; ++i) {
             final char ch = fieldName.charAt(i);
@@ -126,6 +138,7 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
 
     @Nullable
     @Override
+    @SuppressWarnings("RefusedBequest")
     protected ClassMember[] chooseOriginalMembers(final PsiClass aClass, final Project project, final Editor editor) {
         final ClassMember[] allMembers = getAllOriginalMembers(aClass);
         if (allMembers == null) {
