@@ -19,7 +19,7 @@ public class Constants {
     public static final String DEFAULT_FU_TEMPLATE =
             "public static final $FuClass$<$ThisType$, $FieldType$> $FuConstName$ = new $FuClass$<$ThisType$, $FieldType$>() {\n" +
                     "    @Override\n" +
-                    "    $FieldType$ apply(final $ThisType$ arg) {\n" +
+                    "    public $FieldType$ apply(final $ThisType$ arg) {\n" +
                     "        return arg.$fieldGetter$();\n" +
                     "    }\n" +
                     "};";
