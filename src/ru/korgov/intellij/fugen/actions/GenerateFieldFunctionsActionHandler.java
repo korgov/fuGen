@@ -1,4 +1,4 @@
-package ru.korgov.intellij.fugen;
+package ru.korgov.intellij.fugen.actions;
 
 import com.intellij.codeInsight.generation.ClassMember;
 import com.intellij.codeInsight.generation.GenerateMembersHandlerBase;
@@ -16,12 +16,12 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiModifierList;
 import com.intellij.psi.util.PropertyUtil;
-import com.intellij.psi.util.PsiTypesUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
-import ru.korgov.intellij.fugen.properties.Constants;
+import ru.korgov.intellij.fugen.FuBuilder;
 import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
+import ru.korgov.intellij.fugen.properties.PropertiesState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,70 +46,55 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
 
     @Override
     protected GenerationInfo[] generateMemberPrototypes(final PsiClass aClass, final ClassMember original) throws IncorrectOperationException {
-        final List<GenerationInfo> out = new ArrayList<GenerationInfo>(2);
-        if (original instanceof PsiFieldMember) {
-            final PsiFieldMember psiFieldMember = (PsiFieldMember) original;
-            final PsiField field = psiFieldMember.getElement();
-            final PsiMethod getterMethod = generateGetter(field);
-            if (!methodExists(aClass, getterMethod)) {
-                out.add(new PsiGenerationInfo<PsiMethod>(getterMethod));
+        final List<GenerationInfo> out = new ArrayList<GenerationInfo>(3);
+        final PropertiesState properties = PersistentStateProperties.getInstance(aClass.getProject());
+
+        if (properties.isFieldTemplateEnabled() || properties.isMethodTemplateEnabled()) {
+            if (original instanceof PsiFieldMember) {
+                final PsiFieldMember psiFieldMember = (PsiFieldMember) original;
+                final PsiField field = psiFieldMember.getElement();
+                final PsiMethod getterMethod = generateGetter(field);
+                if (!methodExists(aClass, getterMethod)) {
+                    out.add(new PsiGenerationInfo<PsiMethod>(getterMethod));
+                }
+                addIfNotNull(out, tryGenerateFuField(aClass, field, getterMethod));
+                addIfNotNull(out, tryGenerateFuMethod(aClass, field, getterMethod));
             }
-            addIfNotNull(out, tryGenerateFunction(aClass, field, getterMethod));
         }
+
         return out.toArray(new GenerationInfo[out.size()]);
     }
 
     @Nullable
-    private PsiGenerationInfo<PsiField> tryGenerateFunction(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-
-        final Project project = clazz.getProject();
-        final PersistentStateProperties properties = PersistentStateProperties.getInstance(project);
-
-        final String fieldName = field.getName();
-        final String fuConstantName = createFuConstantName(properties.getFuConstNamePrefix(), fieldName);
-        final PsiField existsFieldFu = clazz.findFieldByName(fuConstantName, false);
-        if (existsFieldFu == null) {
-            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
-            final String fuClassName = properties.getFuClassName();
-            final String fuMmethodName = properties.getFuMethodName();
-
-            final String fieldTypeText = PsiTypesUtil.boxIfPossible(field.getType().getCanonicalText());
-            final String className = clazz.getQualifiedName();
-            final String getterMethodName = getterMethod.getName();
-
-            final String fuText = properties.getFuTemplate()
-                    .replaceAll(Constants.FU_CLASS_NAME_VAR, fuClassName)
-                    .replaceAll(Constants.THIS_TYPE_VAR, className)
-                    .replaceAll(Constants.FIELD_TYPE_VAR, fieldTypeText)
-                    .replaceAll(Constants.FIELD_GETTER_VAR, getterMethodName)
-                    .replaceAll(Constants.FIELD_NAME_VAR, fieldName)
-                    .replaceAll(Constants.FU_CONST_NAME_VAR, fuConstantName)
-                    .replaceAll(Constants.FU_METHOD_VAR, fuMmethodName)
-                    .replaceAll(Constants.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName));
-
-            return new PsiGenerationInfo<PsiField>(elementFactory.createFieldFromText(fuText, clazz));
+    private PsiGenerationInfo<PsiField> tryGenerateFuField(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
+        final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
+        if (properties.isFieldTemplateEnabled()) {
+            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod);
+            final String fuText = fuBuilder.buildFuFieldText();
+            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
+            final PsiField fieldFromText = elementFactory.createFieldFromText(fuText, clazz);
+            final PsiField existsFieldFu = clazz.findFieldByName(fieldFromText.getName(), false);
+            if (existsFieldFu == null) {
+                return new PsiGenerationInfo<PsiField>(fieldFromText);
+            }
         }
         return null;
     }
 
-    private String upFirstChar(final String fieldName) {
-        if (fieldName != null && !fieldName.isEmpty()) {
-            return Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-        }
-        return "";
-    }
-
-    private String createFuConstantName(final String prefix, final String fieldName) {
-        final StringBuilder sb = new StringBuilder(prefix);
-        final int length = fieldName.length();
-        for (int i = 0; i < length; ++i) {
-            final char ch = fieldName.charAt(i);
-            if (Character.isUpperCase(ch) && i != 0) {
-                sb.append("_");
+    @Nullable
+    private PsiGenerationInfo<PsiMethod> tryGenerateFuMethod(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
+        final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
+        if (properties.isMethodTemplateEnabled()) {
+            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod);
+            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
+            final String fuMethodText = fuBuilder.buildFuMethodText();
+            final PsiMethod methodFromText = elementFactory.createMethodFromText(fuMethodText, clazz);
+            final PsiMethod[] existsMethods = clazz.findMethodsByName(methodFromText.getName(), false);
+            if (existsMethods.length == 0) {
+                return new PsiGenerationInfo<PsiMethod>(methodFromText);
             }
-            sb.append(Character.toUpperCase(ch));
         }
-        return sb.toString();
+        return null;
     }
 
     public PsiMethod generateGetter(final PsiField field) {

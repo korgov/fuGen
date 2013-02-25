@@ -1,4 +1,4 @@
-package ru.korgov.intellij.fugen;
+package ru.korgov.intellij.fugen.actions;
 
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 

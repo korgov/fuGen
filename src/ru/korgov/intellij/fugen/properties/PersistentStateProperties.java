@@ -19,7 +19,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
                 @Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$" + "/" + PersistentStateProperties.NAME + ".xml", scheme = StorageScheme.DIRECTORY_BASED)
         }
 )
-public class PersistentStateProperties implements PersistentStateComponent<PersistentStateProperties> {
+public class PersistentStateProperties implements PersistentStateComponent<PersistentStateProperties>, PropertiesState {
     public static final String NAME = "FuGenConfiguration";
 
     public static PersistentStateProperties getInstance(final Project project) {
@@ -27,10 +27,32 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     }
 
     private String fuClassName = Constants.DEFAULT_FU_CLASS_NAME;
-    private String fuMethodName = Constants.DEFAULT_FU_METHOD_NAME;
     private String fuConstNamePrefix = Constants.DEFAULT_FU_CONST_PREFIX;
-    private String fuTemplate = Constants.DEFAULT_FU_TEMPLATE;
+    private String fuFieldTemplate = Constants.DEFAULT_FU_TEMPLATE;
+    private String fuMethodTemplate = Constants.DEFAULT_FU_METHOD_TEMPLATE;
 
+    private boolean fieldTemplateEnabled = true;
+    private boolean methodTemplateEnabled = false;
+
+    @Override
+    public boolean isFieldTemplateEnabled() {
+        return fieldTemplateEnabled;
+    }
+
+    public void setFieldTemplateEnabled(final boolean fieldTemplateEnabled) {
+        this.fieldTemplateEnabled = fieldTemplateEnabled;
+    }
+
+    @Override
+    public boolean isMethodTemplateEnabled() {
+        return methodTemplateEnabled;
+    }
+
+    public void setMethodTemplateEnabled(final boolean methodTemplateEnabled) {
+        this.methodTemplateEnabled = methodTemplateEnabled;
+    }
+
+    @Override
     public String getFuClassName() {
         return fuClassName;
     }
@@ -39,14 +61,7 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         this.fuClassName = fuClassName;
     }
 
-    public String getFuMethodName() {
-        return fuMethodName;
-    }
-
-    public void setFuMethodName(final String fuMethodName) {
-        this.fuMethodName = fuMethodName;
-    }
-
+    @Override
     public String getFuConstNamePrefix() {
         return fuConstNamePrefix;
     }
@@ -55,12 +70,22 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         this.fuConstNamePrefix = fuConstNamePrefix;
     }
 
-    public String getFuTemplate() {
-        return fuTemplate;
+    @Override
+    public String getFuFieldTemplate() {
+        return fuFieldTemplate;
     }
 
-    public void setFuTemplate(final String fuTemplate) {
-        this.fuTemplate = fuTemplate;
+    @Override
+    public String getFuMethodTemplate() {
+        return fuMethodTemplate;
+    }
+
+    public void setFuMethodTemplate(final String fuMethodTemplate) {
+        this.fuMethodTemplate = fuMethodTemplate;
+    }
+
+    public void setFuFieldTemplate(final String fuTemplate) {
+        this.fuFieldTemplate = fuTemplate;
     }
 
     @Override
@@ -74,7 +99,41 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public PersistentStateProperties getDefaultInstance() {
+    public static PersistentStateProperties getDefaultInstance() {
         return new PersistentStateProperties();
+    }
+
+
+    @SuppressWarnings({"OverlyComplexMethod", "ControlFlowStatementWithoutBraces", "NonFinalFieldReferenceInEquals", "RedundantIfStatement"})
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final PersistentStateProperties that = (PersistentStateProperties) o;
+
+        if (fieldTemplateEnabled != that.fieldTemplateEnabled) return false;
+        if (methodTemplateEnabled != that.methodTemplateEnabled) return false;
+        if (fuClassName != null ? !fuClassName.equals(that.fuClassName) : that.fuClassName != null) return false;
+        if (fuConstNamePrefix != null ? !fuConstNamePrefix.equals(that.fuConstNamePrefix) : that.fuConstNamePrefix != null)
+            return false;
+        if (fuFieldTemplate != null ? !fuFieldTemplate.equals(that.fuFieldTemplate) : that.fuFieldTemplate != null)
+            return false;
+        if (fuMethodTemplate != null ? !fuMethodTemplate.equals(that.fuMethodTemplate) : that.fuMethodTemplate != null)
+            return false;
+
+        return true;
+    }
+
+    @SuppressWarnings("NonFinalFieldReferencedInHashCode")
+    @Override
+    public int hashCode() {
+        int result = fuClassName != null ? fuClassName.hashCode() : 0;
+        result = 31 * result + (fuConstNamePrefix != null ? fuConstNamePrefix.hashCode() : 0);
+        result = 31 * result + (fuFieldTemplate != null ? fuFieldTemplate.hashCode() : 0);
+        result = 31 * result + (fuMethodTemplate != null ? fuMethodTemplate.hashCode() : 0);
+        result = 31 * result + (fieldTemplateEnabled ? 1 : 0);
+        result = 31 * result + (methodTemplateEnabled ? 1 : 0);
+        return result;
     }
 }
