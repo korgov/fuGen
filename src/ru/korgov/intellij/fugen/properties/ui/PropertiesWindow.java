@@ -81,6 +81,7 @@ public class PropertiesWindow {
         editor.getSettings().setLineNumbersShown(false);
         editor.getSettings().setVirtualSpace(false);
         editor.getSettings().setWhitespacesShown(true);
+        editor.getSettings().setAdditionalLinesCount(0);
 
         if (isTemplate) {
             final TemplateContext contextByType = new TemplateContext();
