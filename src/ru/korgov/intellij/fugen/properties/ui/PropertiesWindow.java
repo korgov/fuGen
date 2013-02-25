@@ -142,10 +142,16 @@ public class PropertiesWindow {
     }
 
     private void setTextFafety(final Editor editor, final String text) {
+        final int horizontalScrollOffset = editor.getScrollingModel().getHorizontalScrollOffset();
+        final int verticalScrollOffset = editor.getScrollingModel().getVerticalScrollOffset();
         final JComponent component = editor.getComponent();
-        final Dimension oldPrefSize = new Dimension(component.getPreferredSize());
+        final Dimension oldPrefSize = component.getPreferredSize();
+        final int caretOffset = editor.getCaretModel().getOffset();
         editor.getDocument().setText(text);
+        editor.getCaretModel().moveToOffset(caretOffset);
         component.setPreferredSize(oldPrefSize);
+        editor.getScrollingModel().scrollHorizontally(horizontalScrollOffset);
+        editor.getScrollingModel().scrollVertically(verticalScrollOffset);
     }
 
     public void saveCurrentSettings(final PersistentStateProperties properties) {
