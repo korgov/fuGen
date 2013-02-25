@@ -2,7 +2,7 @@
   <name>fuGen</name>
   <description>Generating const fields like Function&lt;This, FieldType&gt; and getter(if need) for selected fields.</description>
   <version>1.1.0</version>
-  <vendor>Kirill Korgov</vendor>
+  <vendor email="kirill@korgov.ru">Kirill Korgov</vendor>
 
   <idea-version since-build="107.105"/>
 
