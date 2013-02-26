@@ -3,7 +3,7 @@ package ru.korgov.intellij.fugen.actions;
 import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 
 /**
- * Author: Kirill Korgov (korgov@yandex-team.ru)
+ * Author: Kirill Korgov (kirill@korgov.ru)
  * Date: 05.12.12
  */
 

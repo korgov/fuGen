@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: Kirill Korgov (korgov@yandex-team.ru)
+ * Author: Kirill Korgov (kirill@korgov.ru)
  * Date: 06.12.12
  */
 public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerBase {

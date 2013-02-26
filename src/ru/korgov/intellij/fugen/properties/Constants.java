@@ -5,13 +5,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Author: Kirill Korgov (korgov@yandex-team.ru))
+ * Author: Kirill Korgov (kirill@korgov.ru)
  * Date: 23.02.13 4:49
  */
 public class Constants {
 
     public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
-    public static final String DEFAULT_FU_METHOD_NAME = "apply";
     public static final String DEFAULT_FU_CONST_PREFIX = "TO_";
 
     //todo: replace by vars
