@@ -15,16 +15,16 @@ public class Constants {
     //todo: replace by vars
 
     public static final String DEFAULT_FU_FIELD_TEMPLATE =
-            "public static final $FuClass$<$ThisType$, $FieldType$> TO_$FIELD_NAME$ = new $FuClass$<$ThisType$, $FieldType$>() {\n" +
+            "public static final $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> TO_$" + Vars.FIELD_NAME_ALL_BIG + "$ = new $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$>() {\n" +
                     "    @Override\n" +
-                    "    public $FieldType$ apply(final $ThisType$ arg) {\n" +
-                    "        return arg.$fieldGetter$();\n" +
+                    "    public $" + Vars.FIELD_TYPE + "$ apply(final $" + Vars.THIS_TYPE + "$ arg) {\n" +
+                    "        return arg.$" + Vars.FIELD_GETTER + "$();\n" +
                     "    }\n" +
                     "};";
 
     public static final String DEFAULT_FU_METHOD_TEMPLATE =
-            "public static $FuClass$<$ThisType$, $FieldType$> as$FieldName$() {\n" +
-                    "    return TO_$FIELD_NAME$;\n" +
+            "public static $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> as$" + Vars.FIELD_NAME_BIG + "$() {\n" +
+                    "    return TO_$" + Vars.FIELD_NAME_ALL_BIG + "$;\n" +
                     "}";
 
 
