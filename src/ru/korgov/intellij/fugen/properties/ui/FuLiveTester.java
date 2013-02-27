@@ -24,8 +24,7 @@ public class FuLiveTester {
     }
 
     public String buildTestText(final PropertiesState state) {
-        fuBuilder.setFuConstantNamePrefix(state.getFuConstNamePrefix())
-                .setFuClassName(state.getFuClassName())
+        fuBuilder.setFuClassName(state.getFuClassName())
                 .setFuFieldTemplate(state.getFuFieldTemplate())
                 .setFuMethodTemplate(state.getFuMethodTemplate());
 

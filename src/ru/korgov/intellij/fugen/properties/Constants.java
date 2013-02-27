@@ -11,7 +11,6 @@ import java.util.List;
 public class Constants {
 
     public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
-    public static final String DEFAULT_FU_CONST_PREFIX = "TO_";
 
     //todo: replace by vars
 
@@ -37,6 +36,7 @@ public class Constants {
         public static final String FIELD_GETTER = "fieldGetter";
         public static final String FIELD_NAME = "fieldName";
         public static final String FIELD_NAME_BIG = "FieldName";
+        public static final String FIELD_NAME_ALL_BIG = "FIELD_NAME";
 
         private static final List<String> ALL_VARS = Arrays.asList(
                 FU_CLASS,
@@ -45,7 +45,8 @@ public class Constants {
                 FU_CONST_NAME,
                 FIELD_GETTER,
                 FIELD_NAME,
-                FIELD_NAME_BIG
+                FIELD_NAME_BIG,
+                FIELD_NAME_ALL_BIG
         );
 
 
@@ -56,6 +57,7 @@ public class Constants {
         public static final String FIELD_GETTER_VAR = wrapRegexpVar(FIELD_GETTER);
         public static final String FIELD_NAME_VAR = wrapRegexpVar(FIELD_NAME);
         public static final String FIELD_NAME_UPPER_VAR = wrapRegexpVar(FIELD_NAME_BIG);
+        public static final String FIELD_NAME_ALL_BIG_VAR = wrapRegexpVar(FIELD_NAME_ALL_BIG);
 
         private Vars() {
         }

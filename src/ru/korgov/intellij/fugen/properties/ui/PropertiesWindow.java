@@ -34,7 +34,6 @@ public class PropertiesWindow {
 
     private JPanel mainPanel;
     private JTextField fuClassTextField;
-    private JTextField fuPrefixTextField;
     private JPanel exampleScrollPane;
     private JPanel fieldTemplatePane;
     private JLabel varsHelpLabel;
@@ -63,7 +62,7 @@ public class PropertiesWindow {
 
         varsHelpLabel.setText("<html>" + join(Constants.getAllVarNames(), ", ") + "</html>");
 
-        updateExamplerText();
+        updateExampleText();
         addListeners();
     }
 
@@ -99,12 +98,11 @@ public class PropertiesWindow {
         final ListenerAdapter listener = new ListenerAdapter(new Runnable() {
             @Override
             public void run() {
-                updateExamplerText();
+                updateExampleText();
             }
         });
 
         fuClassTextField.addKeyListener(listener.asKeyL());
-        fuPrefixTextField.addKeyListener(listener.asKeyL());
         fieldTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
         methodTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
         staticFieldTemplateCheckBox.addChangeListener(listener.asChangeL());
@@ -112,7 +110,7 @@ public class PropertiesWindow {
 
     }
 
-    private void updateExamplerText() {
+    private void updateExampleText() {
         final PersistentStateProperties state = PersistentStateProperties.getDefaultInstance();
         saveCurrentSettings(state);
         final String text = fuLiveTester.buildTestText(state);
@@ -130,7 +128,6 @@ public class PropertiesWindow {
                 @Override
                 public void run() {
                     fuClassTextField.setText(properties.getFuClassName());
-                    fuPrefixTextField.setText(properties.getFuConstNamePrefix());
 
                     setTextFafety(fieldTemplateEditor, properties.getFuFieldTemplate());
                     setTextFafety(methodTemplateEditor, properties.getFuMethodTemplate());
@@ -167,7 +164,6 @@ public class PropertiesWindow {
             @Override
             public void run() {
                 properties.setFuClassName(fuClassTextField.getText());
-                properties.setFuConstNamePrefix(fuPrefixTextField.getText());
                 properties.setFuFieldTemplate(fieldTemplateEditor.getDocument().getText());
                 properties.setFuMethodTemplate(methodTemplateEditor.getDocument().getText());
 

@@ -20,7 +20,6 @@ public class FuBuilder {
     private String fieldName;
     private String fieldType;
     private String getterMethodName;
-    private String fuConstantNamePrefix;
 
     public String buildFuFieldText() {
         return buildByTemplate(fuFieldTemplate);
@@ -37,8 +36,21 @@ public class FuBuilder {
                 .replaceAll(Constants.Vars.FIELD_TYPE_VAR, fieldType)
                 .replaceAll(Constants.Vars.FIELD_GETTER_VAR, getterMethodName)
                 .replaceAll(Constants.Vars.FIELD_NAME_VAR, fieldName)
-                .replaceAll(Constants.Vars.FU_CONST_NAME_VAR, buildFuConstantName())
-                .replaceAll(Constants.Vars.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName));
+                .replaceAll(Constants.Vars.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName))
+                .replaceAll(Constants.Vars.FIELD_NAME_ALL_BIG_VAR, buildConstFieldName(fieldName));
+    }
+
+    private static String buildConstFieldName(final String fieldName) {
+        final int length = fieldName.length();
+        final StringBuilder sb = new StringBuilder(length * 2);
+        for (int i = 0; i < length; ++i) {
+            final char ch = fieldName.charAt(i);
+            if (Character.isUpperCase(ch) && i != 0) {
+                sb.append("_");
+            }
+            sb.append(Character.toUpperCase(ch));
+        }
+        return sb.toString();
     }
 
     private static String upFirstChar(final String fieldName) {
@@ -55,11 +67,6 @@ public class FuBuilder {
 
     public FuBuilder setFuClassName(final String fuClassName) {
         this.fuClassName = fuClassName;
-        return this;
-    }
-
-    public FuBuilder setFuConstantNamePrefix(final String prefix) {
-        this.fuConstantNamePrefix = prefix;
         return this;
     }
 
@@ -83,10 +90,6 @@ public class FuBuilder {
         return this;
     }
 
-    public String buildFuConstantName() {
-        return createFuConstantName(fuConstantNamePrefix, fieldName);
-    }
-
     public static FuBuilder getInstance(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
         final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
         final String fieldName = field.getName();
@@ -97,21 +100,7 @@ public class FuBuilder {
                 .setFuFieldTemplate(properties.getFuFieldTemplate())
                 .setFuMethodTemplate(properties.getFuMethodTemplate())
                 .setFuClassName(properties.getFuClassName())
-                .setGetterMethodName(getterMethod.getName())
-                .setFuConstantNamePrefix(properties.getFuConstNamePrefix());
-    }
-
-    private static String createFuConstantName(final String prefix, final String fieldName) {
-        final StringBuilder sb = new StringBuilder(prefix);
-        final int length = fieldName.length();
-        for (int i = 0; i < length; ++i) {
-            final char ch = fieldName.charAt(i);
-            if (Character.isUpperCase(ch) && i != 0) {
-                sb.append("_");
-            }
-            sb.append(Character.toUpperCase(ch));
-        }
-        return sb.toString();
+                .setGetterMethodName(getterMethod.getName());
     }
 
     public FuBuilder setFuMethodTemplate(final String fuMethodTemplate) {

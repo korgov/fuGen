@@ -7,8 +7,6 @@ package ru.korgov.intellij.fugen.properties;
 public interface PropertiesState {
     String getFuClassName();
 
-    String getFuConstNamePrefix();
-
     String getFuFieldTemplate();
 
     String getFuMethodTemplate();

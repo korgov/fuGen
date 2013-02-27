@@ -27,7 +27,6 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     }
 
     private String fuClassName = Constants.DEFAULT_FU_CLASS_NAME;
-    private String fuConstNamePrefix = Constants.DEFAULT_FU_CONST_PREFIX;
     private String fuFieldTemplate = Constants.DEFAULT_FU_TEMPLATE;
     private String fuMethodTemplate = Constants.DEFAULT_FU_METHOD_TEMPLATE;
 
@@ -62,15 +61,6 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     }
 
     @Override
-    public String getFuConstNamePrefix() {
-        return fuConstNamePrefix;
-    }
-
-    public void setFuConstNamePrefix(final String fuConstNamePrefix) {
-        this.fuConstNamePrefix = fuConstNamePrefix;
-    }
-
-    @Override
     public String getFuFieldTemplate() {
         return fuFieldTemplate;
     }
@@ -84,8 +74,8 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         this.fuMethodTemplate = fuMethodTemplate;
     }
 
-    public void setFuFieldTemplate(final String fuTemplate) {
-        this.fuFieldTemplate = fuTemplate;
+    public void setFuFieldTemplate(final String fuFieldTemplate) {
+        this.fuFieldTemplate = fuFieldTemplate;
     }
 
     @Override
@@ -103,7 +93,6 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         return new PersistentStateProperties();
     }
 
-
     @SuppressWarnings({"OverlyComplexMethod", "ControlFlowStatementWithoutBraces", "NonFinalFieldReferenceInEquals", "RedundantIfStatement"})
     @Override
     public boolean equals(final Object o) {
@@ -115,8 +104,6 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         if (fieldTemplateEnabled != that.fieldTemplateEnabled) return false;
         if (methodTemplateEnabled != that.methodTemplateEnabled) return false;
         if (fuClassName != null ? !fuClassName.equals(that.fuClassName) : that.fuClassName != null) return false;
-        if (fuConstNamePrefix != null ? !fuConstNamePrefix.equals(that.fuConstNamePrefix) : that.fuConstNamePrefix != null)
-            return false;
         if (fuFieldTemplate != null ? !fuFieldTemplate.equals(that.fuFieldTemplate) : that.fuFieldTemplate != null)
             return false;
         if (fuMethodTemplate != null ? !fuMethodTemplate.equals(that.fuMethodTemplate) : that.fuMethodTemplate != null)
@@ -129,7 +116,6 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     @Override
     public int hashCode() {
         int result = fuClassName != null ? fuClassName.hashCode() : 0;
-        result = 31 * result + (fuConstNamePrefix != null ? fuConstNamePrefix.hashCode() : 0);
         result = 31 * result + (fuFieldTemplate != null ? fuFieldTemplate.hashCode() : 0);
         result = 31 * result + (fuMethodTemplate != null ? fuMethodTemplate.hashCode() : 0);
         result = 31 * result + (fieldTemplateEnabled ? 1 : 0);
