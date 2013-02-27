@@ -5,9 +5,11 @@ import com.intellij.codeInsight.template.impl.TemplateContext;
 import com.intellij.codeInsight.template.impl.TemplateEditorUtil;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.ScrollingModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 import ru.korgov.intellij.fugen.properties.Constants;
@@ -143,10 +145,20 @@ public class PropertiesWindow {
 
     private void setTextFafety(final Editor editor, final String text) {
         final JComponent component = editor.getComponent();
+        final CaretModel caretModel = editor.getCaretModel();
+        final ScrollingModel scrollingModel = editor.getScrollingModel();
+        final Document document = editor.getDocument();
+
         final Dimension oldPrefSize = component.getPreferredSize();
-        final int caretOffset = editor.getCaretModel().getOffset();
-        editor.getDocument().setText(text);
-        editor.getCaretModel().moveToOffset(Math.min(caretOffset, text.length()));
+        final int caretOffset = caretModel.getOffset();
+        final int horizontalScrollOffset = scrollingModel.getHorizontalScrollOffset();
+        final int verticalScrollOffset = scrollingModel.getVerticalScrollOffset();
+
+        document.setText(text);
+
+        scrollingModel.scrollHorizontally(Math.min(horizontalScrollOffset, document.getLineEndOffset(0)));
+        scrollingModel.scrollVertically(Math.min(verticalScrollOffset, document.getLineCount()));
+        caretModel.moveToOffset(Math.min(caretOffset, text.length()));
         component.setPreferredSize(oldPrefSize);
     }
 
