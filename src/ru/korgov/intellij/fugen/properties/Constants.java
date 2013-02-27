@@ -14,8 +14,8 @@ public class Constants {
 
     //todo: replace by vars
 
-    public static final String DEFAULT_FU_TEMPLATE =
-            "public static final $FuClass$<$ThisType$, $FieldType$> $FuConstName$ = new $FuClass$<$ThisType$, $FieldType$>() {\n" +
+    public static final String DEFAULT_FU_FIELD_TEMPLATE =
+            "public static final $FuClass$<$ThisType$, $FieldType$> TO_$FIELD_NAME$ = new $FuClass$<$ThisType$, $FieldType$>() {\n" +
                     "    @Override\n" +
                     "    public $FieldType$ apply(final $ThisType$ arg) {\n" +
                     "        return arg.$fieldGetter$();\n" +
@@ -24,7 +24,7 @@ public class Constants {
 
     public static final String DEFAULT_FU_METHOD_TEMPLATE =
             "public static $FuClass$<$ThisType$, $FieldType$> as$FieldName$() {\n" +
-                    "    return $FuConstName$;\n" +
+                    "    return TO_$FIELD_NAME$;\n" +
                     "}";
 
 

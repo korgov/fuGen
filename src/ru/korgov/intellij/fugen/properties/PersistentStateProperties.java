@@ -27,7 +27,7 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     }
 
     private String fuClassName = Constants.DEFAULT_FU_CLASS_NAME;
-    private String fuFieldTemplate = Constants.DEFAULT_FU_TEMPLATE;
+    private String fuFieldTemplate = Constants.DEFAULT_FU_FIELD_TEMPLATE;
     private String fuMethodTemplate = Constants.DEFAULT_FU_METHOD_TEMPLATE;
 
     private boolean fieldTemplateEnabled = true;
