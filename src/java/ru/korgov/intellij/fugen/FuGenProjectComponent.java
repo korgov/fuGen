@@ -22,11 +22,9 @@ public class FuGenProjectComponent implements Configurable, ProjectComponent {
 
     private PropertiesWindow propertiesWindow;
     private final PersistentStateProperties properties;
-    private final Project project;
 
     public FuGenProjectComponent(final Project project) {
         this.properties = PersistentStateProperties.getInstance(project);
-        this.project = project;
     }
 
     @Nls
@@ -50,7 +48,7 @@ public class FuGenProjectComponent implements Configurable, ProjectComponent {
     @Override
     public JComponent createComponent() {
         if (propertiesWindow == null) {
-            propertiesWindow = new PropertiesWindow(project);
+            propertiesWindow = new PropertiesWindow();
         }
         reset();
         return propertiesWindow.getMainPanel();
@@ -92,6 +90,7 @@ public class FuGenProjectComponent implements Configurable, ProjectComponent {
 
     @Override
     public void initComponent() {
+
     }
 
     @Override

@@ -14,4 +14,6 @@ public interface PropertiesState {
     boolean isFieldTemplateEnabled();
 
     boolean isMethodTemplateEnabled();
+
+    String getGeneratorName();
 }

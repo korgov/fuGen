@@ -32,8 +32,13 @@ import java.util.List;
  */
 public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerBase {
 
-    public GenerateFieldFunctionsActionHandler() {
-        super("Generate functions");
+    private final String actionText;
+    private final int actionIndex;
+
+    public GenerateFieldFunctionsActionHandler(final String actionText, final int actionIndex) {
+        super("Generate " + actionText);
+        this.actionText = actionText;
+        this.actionIndex = actionIndex;
     }
 
     @Override
@@ -47,7 +52,7 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
     @Override
     protected GenerationInfo[] generateMemberPrototypes(final PsiClass aClass, final ClassMember original) throws IncorrectOperationException {
         final List<GenerationInfo> out = new ArrayList<GenerationInfo>(3);
-        final PropertiesState properties = PersistentStateProperties.getInstance(aClass.getProject());
+        final PropertiesState properties = getProperties(aClass);
 
         if (properties.isFieldTemplateEnabled() || properties.isMethodTemplateEnabled()) {
             if (original instanceof PsiFieldMember) {
@@ -65,11 +70,18 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
         return out.toArray(new GenerationInfo[out.size()]);
     }
 
+    private PropertiesState getProperties(final PsiClass aClass) {
+        final PersistentStateProperties state = PersistentStateProperties.getInstance(aClass.getProject());
+        //todo: get by registered-action
+        final List<? extends PropertiesState> propertiesList = state.getProperties();
+        return propertiesList.get(0);
+    }
+
     @Nullable
     private PsiGenerationInfo<PsiField> tryGenerateFuField(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-        final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
+        final PropertiesState properties = getProperties(clazz);
         if (properties.isFieldTemplateEnabled()) {
-            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod);
+            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod, properties);
             final String fuText = fuBuilder.buildFuFieldText();
             final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
             final PsiField fieldFromText = elementFactory.createFieldFromText(fuText, clazz);
@@ -83,9 +95,9 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
 
     @Nullable
     private PsiGenerationInfo<PsiMethod> tryGenerateFuMethod(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-        final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
+        final PropertiesState properties = getProperties(clazz);
         if (properties.isMethodTemplateEnabled()) {
-            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod);
+            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod, properties);
             final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
             final String fuMethodText = fuBuilder.buildFuMethodText();
             final PsiMethod methodFromText = elementFactory.createMethodFromText(fuMethodText, clazz);
@@ -114,11 +126,11 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
 
     @Override
     protected String getNothingFoundMessage() {
-        return "No fields have been found to generate functions for";
+        return "No fields have been found to generate " + actionText + " for";
     }
 
     protected String getNothingAcceptedMessage() {
-        return "No fields without function were found";
+        return "No fields without " + actionText + " were found";
     }
 
     @Nullable

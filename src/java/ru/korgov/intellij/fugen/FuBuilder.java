@@ -5,7 +5,6 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.util.PsiTypesUtil;
 import ru.korgov.intellij.fugen.properties.Constants;
-import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
 import ru.korgov.intellij.fugen.properties.PropertiesState;
 
 /**
@@ -90,8 +89,7 @@ public class FuBuilder {
         return this;
     }
 
-    public static FuBuilder getInstance(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-        final PropertiesState properties = PersistentStateProperties.getInstance(clazz.getProject());
+    public static FuBuilder getInstance(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod, final PropertiesState properties) {
         final String fieldName = field.getName();
         return new FuBuilder()
                 .setClassName(clazz.getName())

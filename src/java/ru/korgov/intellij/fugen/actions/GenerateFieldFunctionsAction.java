@@ -8,7 +8,7 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
  */
 
 public class GenerateFieldFunctionsAction extends BaseGenerateAction {
-    public GenerateFieldFunctionsAction() {
-        super(new GenerateFieldFunctionsActionHandler());
+    public GenerateFieldFunctionsAction(final String text, final int index) {
+        super(new GenerateFieldFunctionsActionHandler(text, index));
     }
 }

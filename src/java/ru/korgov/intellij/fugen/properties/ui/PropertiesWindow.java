@@ -1,23 +1,26 @@
 package ru.korgov.intellij.fugen.properties.ui;
 
-import com.intellij.codeInsight.template.JavaCodeContextType;
-import com.intellij.codeInsight.template.impl.TemplateContext;
-import com.intellij.codeInsight.template.impl.TemplateEditorUtil;
-import com.intellij.ide.highlighter.JavaFileType;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPlaces;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.CaretModel;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.ScrollingModel;
-import com.intellij.openapi.project.Project;
-import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.util.PlatformIcons;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.korgov.intellij.fugen.properties.Constants;
+import ru.korgov.intellij.fugen.properties.GeneratorPropertiesState;
 import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
-import ru.korgov.intellij.fugen.properties.PropertiesState;
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,72 +28,130 @@ import java.util.List;
  * Date: 02.12.12
  */
 public class PropertiesWindow {
-    private static final GridConstraints DEFAULT_CONSTRAINTS = new GridConstraints(0, 0, 1, 1,
-            GridConstraints.ANCHOR_CENTER,
-            GridConstraints.FILL_BOTH,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
-            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW | GridConstraints.SIZEPOLICY_WANT_GROW,
-            null, null, null, 0, true);
 
     private JPanel mainPanel;
     private JTextField fuClassTextField;
-    private JPanel exampleScrollPane;
+    private JPanel examplePane;
     private JPanel fieldTemplatePane;
     private JLabel varsHelpLabel;
     private JPanel methodTemplatePane;
     private JCheckBox staticMethodTemplateCheckBox;
     private JCheckBox staticFieldTemplateCheckBox;
+    private JPanel toolbarPanel;
+    private JList generatorsList;
+    private JSplitPane mainSplitPane;
     private final Editor exampleViewer;
     private final Editor fieldTemplateEditor;
     private final Editor methodTemplateEditor;
 
     private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "long", "getId");
-    private final Project project;
+
+    private final DefaultListModel generatorsListModel = new DefaultListModel();
+
+    private final List<GeneratorPropertiesState> generatorsProps = new ArrayList<GeneratorPropertiesState>();
+
+    private
+    @Nullable
+    GeneratorPropertiesState currentGenerator = null;
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
 
-    public PropertiesWindow(final Project project) {
-        this.project = project;
-        exampleViewer = createEditor(true, false);
-        exampleScrollPane.add(exampleViewer.getComponent(), DEFAULT_CONSTRAINTS);
-        fieldTemplateEditor = createEditor(false, true);
-        fieldTemplatePane.add(fieldTemplateEditor.getComponent(), DEFAULT_CONSTRAINTS);
-        methodTemplateEditor = createEditor(false, true);
-        methodTemplatePane.add(methodTemplateEditor.getComponent(), DEFAULT_CONSTRAINTS);
+    public PropertiesWindow() {
+        exampleViewer = Utils.createEditor(true, false);
+        examplePane.add(exampleViewer.getComponent(), Utils.getDefaultConstraints());
+        fieldTemplateEditor = Utils.createEditor(false, true);
+        fieldTemplatePane.add(fieldTemplateEditor.getComponent(), Utils.getDefaultConstraints());
+        methodTemplateEditor = Utils.createEditor(false, true);
+        methodTemplatePane.add(methodTemplateEditor.getComponent(), Utils.getDefaultConstraints());
 
-        varsHelpLabel.setText("<html>" + join(Constants.getAllVarNames(), ", ") + "</html>");
+        varsHelpLabel.setText("<html>" + Utils.join(Constants.getAllVarNames(), ", ") + "</html>");
+
+        final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, createActions(), true);
+        toolbarPanel.add(actionToolbar.getComponent(), Utils.getDefaultConstraints());
 
         updateExampleText();
         addListeners();
+
+        generatorsList.setModel(generatorsListModel);
+
+        mainSplitPane.updateUI();
     }
 
-    private String join(final List<String> allVarNames, final String sep) {
-        final StringBuilder sb = new StringBuilder(allVarNames.size() * 20);
-        for (final String varName : allVarNames) {
-            sb.append(sep).append(varName);
-        }
-        return sb.substring(sep.length());
+    private ActionGroup createActions() {
+        final DefaultActionGroup group = new DefaultActionGroup();
+        group.add(createAddAction());
+        group.addSeparator();
+        group.add(createDeleteAction());
+        return group;
     }
 
-    private Editor createEditor(final boolean isViewer, final boolean isTemplate) {
-        final EditorFactory editorFactory = EditorFactory.getInstance();
-        final Document document = editorFactory.createDocument("");
+    private ActionGroup createDeleteAction() {
+        return Utils.wrapAction("Delete", new AnAction("Delete", "Delete selected action", PlatformIcons.DELETE_ICON) {
+            @Override
+            public void actionPerformed(final AnActionEvent e) {
+                final int selectedIndex = generatorsList.getSelectedIndex();
+                if (selectedIndex > -1) {
+                    final GeneratorPropertiesState selectedGenerator = generatorsProps.get(selectedIndex);
+                    final int yesNoDialogAnswerCode = Messages.showYesNoDialog(toolbarPanel,
+                            "Are you sure you want to delete \"" + selectedGenerator.getGeneratorName() + "\" action?",
+                            "Delete Generation Action", null
+                    );
 
-        final Editor editor = editorFactory.createEditor(document, project, JavaFileType.INSTANCE, isViewer);
-        editor.getSettings().setLineNumbersShown(false);
-        editor.getSettings().setVirtualSpace(false);
-        editor.getSettings().setWhitespacesShown(true);
-        editor.getSettings().setAdditionalLinesCount(0);
+                    if (isYesAnswer(yesNoDialogAnswerCode)) {
+                        deleteGenerator(selectedIndex);
+                    }
+                }
+            }
 
-        if (isTemplate) {
-            final TemplateContext contextByType = new TemplateContext();
-            contextByType.setEnabled(new JavaCodeContextType.Statement(), true);
-            TemplateEditorUtil.setHighlighter(editor, contextByType);
-        }
+            private boolean isYesAnswer(final int yesNoDialogAnswerCode) {
+                return yesNoDialogAnswerCode == 0;
+            }
+        });
+    }
 
-        return editor;
+    private void deleteGenerator(final int index) {
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            @Override
+            public void run() {
+                generatorsListModel.remove(index);
+                final GeneratorPropertiesState removedGenerator = generatorsProps.remove(index);
+                //noinspection ObjectEquality
+                if (currentGenerator == removedGenerator) {
+                    currentGenerator = null;
+                    if (generatorsProps.isEmpty()) {
+                        loadFromState(GeneratorPropertiesState.empty());
+                    } else {
+                        generatorsList.setSelectedIndex(index - 1);
+                    }
+                }
+            }
+        });
+    }
+
+    private ActionGroup createAddAction() {
+        return Utils.wrapAction("Add", new AnAction("Add", "Add new generation action", PlatformIcons.ADD_ICON) {
+            @Override
+            public void actionPerformed(final AnActionEvent e) {
+                final String name = Messages.showInputDialog(toolbarPanel, "Name: ", "Add Generation Action", null);
+                if (name != null) {
+                    addNewGenerator(name);
+                }
+            }
+        });
+    }
+
+    private void addNewGenerator(final String name) {
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            @Override
+            public void run() {
+                flushCurrentGeneratorState();
+                generatorsProps.add(new GeneratorPropertiesState(name));
+                generatorsListModel.addElement(name);
+                generatorsList.setSelectedIndex(generatorsListModel.size() - 1);
+            }
+        });
     }
 
     private void addListeners() {
@@ -108,67 +169,101 @@ public class PropertiesWindow {
         staticFieldTemplateCheckBox.addChangeListener(listener.asChangeL());
         staticMethodTemplateCheckBox.addChangeListener(listener.asChangeL());
 
+        generatorsList.addListSelectionListener(getGeneratorSelectionListener());
     }
 
-    private void updateExampleText() {
-        final PersistentStateProperties state = PersistentStateProperties.getDefaultInstance();
-        saveCurrentSettings(state);
-        final String text = fuLiveTester.buildTestText(state);
+    private ListSelectionListener getGeneratorSelectionListener() {
+        return new ListSelectionListener() {
+            @Override
+            public void valueChanged(final ListSelectionEvent e) {
+                final int selectedIndex = generatorsList.getSelectedIndex();
+                switchGeneratorTo(selectedIndex);
+            }
+        };
+    }
+
+    private void switchGeneratorTo(final int selectedIndex) {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
             @Override
             public void run() {
-                setTextFafety(exampleViewer, text);
+                if (selectedIndex >= 0 && selectedIndex < generatorsProps.size()) {
+                    flushCurrentGeneratorState();
+                    currentGenerator = generatorsProps.get(selectedIndex);
+                    loadCurrentGeneratorState();
+                }
             }
         });
     }
 
-    public void loadCurrentProperties(final PropertiesState properties) {
+    private void loadCurrentGeneratorState() {
+        if (currentGenerator != null) {
+            loadFromState(currentGenerator);
+        }
+    }
+
+    private void loadFromState(final @NotNull GeneratorPropertiesState state) {
+        fuClassTextField.setText(state.getFuClassName());
+        Utils.setTextFafety(fieldTemplateEditor, state.getFuFieldTemplate());
+        Utils.setTextFafety(methodTemplateEditor, state.getFuMethodTemplate());
+        staticFieldTemplateCheckBox.setSelected(state.isFieldTemplateEnabled());
+        staticMethodTemplateCheckBox.setSelected(state.isMethodTemplateEnabled());
+    }
+
+    private void flushCurrentGeneratorState() {
+        if (currentGenerator != null) {
+            saveCurrentStateTo(currentGenerator);
+        }
+    }
+
+    private void saveCurrentStateTo(final @NotNull GeneratorPropertiesState state) {
+        state.setFuClassName(fuClassTextField.getText());
+        state.setFuFieldTemplate(fieldTemplateEditor.getDocument().getText());
+        state.setFuMethodTemplate(methodTemplateEditor.getDocument().getText());
+        state.setFieldTemplateEnabled(staticFieldTemplateCheckBox.isSelected());
+        state.setMethodTemplateEnabled(staticMethodTemplateCheckBox.isSelected());
+    }
+
+    private void updateExampleText() {
+        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+            @Override
+            public void run() {
+                final GeneratorPropertiesState state = GeneratorPropertiesState.empty();
+                saveCurrentStateTo(state);
+                final String text = fuLiveTester.buildTestText(state);
+                Utils.setTextFafety(exampleViewer, text);
+            }
+        });
+    }
+
+    public void loadCurrentProperties(final PersistentStateProperties properties) {
         if (properties != null) {
             ApplicationManager.getApplication().runWriteAction(new Runnable() {
                 @Override
                 public void run() {
-                    fuClassTextField.setText(properties.getFuClassName());
-
-                    setTextFafety(fieldTemplateEditor, properties.getFuFieldTemplate());
-                    setTextFafety(methodTemplateEditor, properties.getFuMethodTemplate());
-                    exampleViewer.getScrollingModel().scrollVertically(0);
-
-                    staticFieldTemplateCheckBox.setSelected(properties.isFieldTemplateEnabled());
-                    staticMethodTemplateCheckBox.setSelected(properties.isMethodTemplateEnabled());
+                    reInitGenerators(properties);
+                    generatorsList.setSelectedIndex(0);
                 }
             });
         }
     }
 
-    private void setTextFafety(final Editor editor, final String text) {
-        final JComponent component = editor.getComponent();
-        final CaretModel caretModel = editor.getCaretModel();
-        final ScrollingModel scrollingModel = editor.getScrollingModel();
-        final Document document = editor.getDocument();
+    private void reInitGenerators(final PersistentStateProperties properties) {
+        currentGenerator = null;
+        generatorsProps.clear();
+        generatorsListModel.clear();
 
-        final Dimension oldPrefSize = component.getPreferredSize();
-        final int caretOffset = caretModel.getOffset();
-        final int horizontalScrollOffset = scrollingModel.getHorizontalScrollOffset();
-        final int verticalScrollOffset = scrollingModel.getVerticalScrollOffset();
-
-        document.setText(text);
-
-        scrollingModel.scrollHorizontally(Math.min(horizontalScrollOffset, document.getLineEndOffset(0)));
-        scrollingModel.scrollVertically(Math.min(verticalScrollOffset, document.getLineCount()));
-        caretModel.moveToOffset(Math.min(caretOffset, text.length()));
-        component.setPreferredSize(oldPrefSize);
+        for (final GeneratorPropertiesState generatorsProp : properties.getProperties()) {
+            generatorsProps.add(generatorsProp.copy());
+            generatorsListModel.addElement(generatorsProp.getGeneratorName());
+        }
     }
 
-    public void saveCurrentSettings(final PersistentStateProperties properties) {
+    public void saveCurrentSettings(final PersistentStateProperties state) {
         ApplicationManager.getApplication().runReadAction(new Runnable() {
             @Override
             public void run() {
-                properties.setFuClassName(fuClassTextField.getText());
-                properties.setFuFieldTemplate(fieldTemplateEditor.getDocument().getText());
-                properties.setFuMethodTemplate(methodTemplateEditor.getDocument().getText());
-
-                properties.setFieldTemplateEnabled(staticFieldTemplateCheckBox.isSelected());
-                properties.setMethodTemplateEnabled(staticMethodTemplateCheckBox.isSelected());
+                flushCurrentGeneratorState();
+                state.setProperties(generatorsProps);
             }
         });
     }

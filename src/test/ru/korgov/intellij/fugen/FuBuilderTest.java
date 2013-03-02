@@ -14,7 +14,7 @@ public class FuBuilderTest {
     public void testConsts() throws Exception {
         final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "long", "getId");
 
-        final String testStr = fuLiveTester.buildTestText(new PersistentStateProperties());
+        final String testStr = fuLiveTester.buildTestText(new PersistentStateProperties().getProperties().get(0));
 
         System.out.println(testStr);
     }

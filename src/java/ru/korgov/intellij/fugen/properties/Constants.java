@@ -12,8 +12,6 @@ public class Constants {
 
     public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
 
-    //todo: replace by vars
-
     public static final String DEFAULT_FU_FIELD_TEMPLATE =
             "public static final $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> TO_$" + Vars.FIELD_NAME_ALL_BIG + "$ = new $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$>() {\n" +
                     "    @Override\n" +
@@ -27,12 +25,17 @@ public class Constants {
                     "    return TO_$" + Vars.FIELD_NAME_ALL_BIG + "$;\n" +
                     "}";
 
+    public static final String DEFAULT_GENERATOR_NAME = "Functions";
+
+    public static List<GeneratorPropertiesState> getDefaultProperties() {
+        return Arrays.asList(new GeneratorPropertiesState());
+    }
+
 
     public static class Vars {
         public static final String FU_CLASS = "FuClass";
         public static final String THIS_TYPE = "ThisType";
         public static final String FIELD_TYPE = "FieldType";
-        public static final String FU_CONST_NAME = "FuConstName";
         public static final String FIELD_GETTER = "fieldGetter";
         public static final String FIELD_NAME = "fieldName";
         public static final String FIELD_NAME_BIG = "FieldName";
@@ -42,7 +45,6 @@ public class Constants {
                 FU_CLASS,
                 THIS_TYPE,
                 FIELD_TYPE,
-                FU_CONST_NAME,
                 FIELD_GETTER,
                 FIELD_NAME,
                 FIELD_NAME_BIG,
@@ -53,7 +55,6 @@ public class Constants {
         public static final String FU_CLASS_NAME_VAR = wrapRegexpVar(FU_CLASS);
         public static final String THIS_TYPE_VAR = wrapRegexpVar(THIS_TYPE);
         public static final String FIELD_TYPE_VAR = wrapRegexpVar(FIELD_TYPE);
-        public static final String FU_CONST_NAME_VAR = wrapRegexpVar(FU_CONST_NAME);
         public static final String FIELD_GETTER_VAR = wrapRegexpVar(FIELD_GETTER);
         public static final String FIELD_NAME_VAR = wrapRegexpVar(FIELD_NAME);
         public static final String FIELD_NAME_UPPER_VAR = wrapRegexpVar(FIELD_NAME_BIG);
