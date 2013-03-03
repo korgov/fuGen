@@ -20,12 +20,15 @@ public class FuBuilder {
     private String fieldType;
     private String getterMethodName;
 
+    private boolean isFuFieldEnabled;
+    private boolean isFuMethodEnabled;
+
     public String buildFuFieldText() {
-        return buildByTemplate(fuFieldTemplate);
+        return isFuFieldEnabled ? buildByTemplate(fuFieldTemplate) : "";
     }
 
     public String buildFuMethodText() {
-        return buildByTemplate(fuMethodTemplate);
+        return isFuMethodEnabled ? buildByTemplate(fuMethodTemplate) : "";
     }
 
     public String buildByTemplate(final String template) {
@@ -37,6 +40,20 @@ public class FuBuilder {
                 .replaceAll(Constants.Vars.FIELD_NAME_VAR, fieldName)
                 .replaceAll(Constants.Vars.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName))
                 .replaceAll(Constants.Vars.FIELD_NAME_ALL_BIG_VAR, buildConstFieldName(fieldName));
+    }
+
+    public boolean isNeedGetter() {
+        return isFuFieldNeedGetter() || isFuMethodNeedGetter();
+    }
+
+    private boolean isFuMethodNeedGetter() {
+        return isFuMethodEnabled
+                && Constants.Patterns.FIELD_GETTER_VAR_P.matcher(fuMethodTemplate).find();
+    }
+
+    private boolean isFuFieldNeedGetter() {
+        return isFuFieldEnabled
+                && Constants.Patterns.FIELD_GETTER_VAR_P.matcher(fuFieldTemplate).find();
     }
 
     private static String buildConstFieldName(final String fieldName) {
@@ -98,11 +115,23 @@ public class FuBuilder {
                 .setFuFieldTemplate(properties.getFuFieldTemplate())
                 .setFuMethodTemplate(properties.getFuMethodTemplate())
                 .setFuClassName(properties.getFuClassName())
-                .setGetterMethodName(getterMethod.getName());
+                .setGetterMethodName(getterMethod.getName())
+                .setFuFieldEnabled(properties.isFieldTemplateEnabled())
+                .setFuMethodEnabled(properties.isMethodTemplateEnabled());
     }
 
     public FuBuilder setFuMethodTemplate(final String fuMethodTemplate) {
         this.fuMethodTemplate = fuMethodTemplate;
+        return this;
+    }
+
+    public FuBuilder setFuFieldEnabled(final boolean fuFieldEnabled) {
+        isFuFieldEnabled = fuFieldEnabled;
+        return this;
+    }
+
+    public FuBuilder setFuMethodEnabled(final boolean fuMethodEnabled) {
+        isFuMethodEnabled = fuMethodEnabled;
         return this;
     }
 }

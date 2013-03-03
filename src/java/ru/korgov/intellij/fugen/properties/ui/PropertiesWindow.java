@@ -8,16 +8,25 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.korgov.intellij.fugen.properties.Constants;
+import ru.korgov.intellij.fugen.FuLiveTester;
 import ru.korgov.intellij.fugen.properties.GeneratorPropertiesState;
 import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.util.ArrayList;
@@ -40,9 +49,10 @@ public class PropertiesWindow {
     private JPanel toolbarPanel;
     private JList generatorsList;
     private JSplitPane mainSplitPane;
-    private final Editor exampleViewer;
-    private final Editor fieldTemplateEditor;
-    private final Editor methodTemplateEditor;
+    private JTabbedPane templatesTabbedPane;
+    private final EditorEx exampleViewer;
+    private final EditorEx fieldTemplateEditor;
+    private final EditorEx methodTemplateEditor;
 
     private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "long", "getId");
 
@@ -59,17 +69,17 @@ public class PropertiesWindow {
     }
 
     public PropertiesWindow() {
-        exampleViewer = Utils.createEditor(true, false);
-        examplePane.add(exampleViewer.getComponent(), Utils.getDefaultConstraints());
-        fieldTemplateEditor = Utils.createEditor(false, true);
-        fieldTemplatePane.add(fieldTemplateEditor.getComponent(), Utils.getDefaultConstraints());
-        methodTemplateEditor = Utils.createEditor(false, true);
-        methodTemplatePane.add(methodTemplateEditor.getComponent(), Utils.getDefaultConstraints());
+        exampleViewer = UIUtils.createEditor(true, false);
+        examplePane.add(exampleViewer.getComponent(), UIUtils.getDefaultConstraints());
+        fieldTemplateEditor = UIUtils.createEditor(false, true);
+        fieldTemplatePane.add(fieldTemplateEditor.getComponent(), UIUtils.getDefaultConstraints());
+        methodTemplateEditor = UIUtils.createEditor(false, true);
+        methodTemplatePane.add(methodTemplateEditor.getComponent(), UIUtils.getDefaultConstraints());
 
-        varsHelpLabel.setText("<html>" + Utils.join(Constants.getAllVarNames(), ", ") + "</html>");
+        varsHelpLabel.setText("<html>" + UIUtils.join(Constants.getAllVarNames(), ", ") + "</html>");
 
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, createActions(), true);
-        toolbarPanel.add(actionToolbar.getComponent(), Utils.getDefaultConstraints());
+        toolbarPanel.add(actionToolbar.getComponent(), UIUtils.getDefaultConstraints());
 
         updateExampleText();
         addListeners();
@@ -82,13 +92,45 @@ public class PropertiesWindow {
     private ActionGroup createActions() {
         final DefaultActionGroup group = new DefaultActionGroup();
         group.add(createAddAction());
-        group.addSeparator();
         group.add(createDeleteAction());
+        group.addSeparator();
+        group.add(createMoveUpAction());
+        group.add(createMoveDownAction());
         return group;
     }
 
+    private AnAction createMoveUpAction() {
+        return createMoveAction("Up", "Move selected action up", PlatformIcons.MOVE_UP_ICON, -1);
+    }
+
+    private AnAction createMoveDownAction() {
+        return createMoveAction("Down", "Move selected action down", PlatformIcons.MOVE_DOWN_ICON, 1);
+    }
+
+    private ActionGroup createMoveAction(final String name, final String description, final Icon icon, final int delta) {
+        return UIUtils.wrapAction(name, new AnAction(name, description, icon) {
+            @Override
+            public void actionPerformed(final AnActionEvent e) {
+                final int selectedIndex = generatorsList.getSelectedIndex();
+                if (selectedIndex > -1) {
+                    final int newIndex = selectedIndex + delta;
+                    if (newIndex >= 0 && newIndex < generatorsProps.size()) {
+
+                        final GeneratorPropertiesState removedState = generatorsProps.remove(selectedIndex);
+                        final Object removedLabel = generatorsListModel.remove(selectedIndex);
+
+                        generatorsProps.add(newIndex, removedState);
+                        generatorsListModel.add(newIndex, removedLabel);
+
+                        generatorsList.setSelectedIndex(newIndex);
+                    }
+                }
+            }
+        });
+    }
+
     private ActionGroup createDeleteAction() {
-        return Utils.wrapAction("Delete", new AnAction("Delete", "Delete selected action", PlatformIcons.DELETE_ICON) {
+        return UIUtils.wrapAction("Delete", new AnAction("Delete", "Delete selected action", PlatformIcons.DELETE_ICON) {
             @Override
             public void actionPerformed(final AnActionEvent e) {
                 final int selectedIndex = generatorsList.getSelectedIndex();
@@ -96,7 +138,7 @@ public class PropertiesWindow {
                     final GeneratorPropertiesState selectedGenerator = generatorsProps.get(selectedIndex);
                     final int yesNoDialogAnswerCode = Messages.showYesNoDialog(toolbarPanel,
                             "Are you sure you want to delete \"" + selectedGenerator.getGeneratorName() + "\" action?",
-                            "Delete Generation Action", null
+                            "Delete Generation Action", Messages.getQuestionIcon()
                     );
 
                     if (isYesAnswer(yesNoDialogAnswerCode)) {
@@ -131,7 +173,7 @@ public class PropertiesWindow {
     }
 
     private ActionGroup createAddAction() {
-        return Utils.wrapAction("Add", new AnAction("Add", "Add new generation action", PlatformIcons.ADD_ICON) {
+        return UIUtils.wrapAction("Add", new AnAction("Add", "Add new generation action", PlatformIcons.ADD_ICON) {
             @Override
             public void actionPerformed(final AnActionEvent e) {
                 final String name = Messages.showInputDialog(toolbarPanel, "Name: ", "Add Generation Action", null);
@@ -203,10 +245,11 @@ public class PropertiesWindow {
 
     private void loadFromState(final @NotNull GeneratorPropertiesState state) {
         fuClassTextField.setText(state.getFuClassName());
-        Utils.setTextFafety(fieldTemplateEditor, state.getFuFieldTemplate());
-        Utils.setTextFafety(methodTemplateEditor, state.getFuMethodTemplate());
+        UIUtils.setTextFafety(fieldTemplateEditor, state.getFuFieldTemplate());
+        UIUtils.setTextFafety(methodTemplateEditor, state.getFuMethodTemplate());
         staticFieldTemplateCheckBox.setSelected(state.isFieldTemplateEnabled());
         staticMethodTemplateCheckBox.setSelected(state.isMethodTemplateEnabled());
+        templatesTabbedPane.setSelectedIndex(state.isFieldTemplateEnabled() ? 0 : 1);
     }
 
     private void flushCurrentGeneratorState() {
@@ -230,7 +273,7 @@ public class PropertiesWindow {
                 final GeneratorPropertiesState state = GeneratorPropertiesState.empty();
                 saveCurrentStateTo(state);
                 final String text = fuLiveTester.buildTestText(state);
-                Utils.setTextFafety(exampleViewer, text);
+                UIUtils.setTextFafety(exampleViewer, text);
             }
         });
     }

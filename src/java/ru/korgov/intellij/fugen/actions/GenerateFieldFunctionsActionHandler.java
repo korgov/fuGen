@@ -8,7 +8,9 @@ import com.intellij.codeInsight.generation.PsiGenerationInfo;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.openapi.util.Condition;
+import com.intellij.pom.java.LanguageLevel;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElementFactory;
@@ -50,40 +52,54 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
     }
 
     @Override
-    protected GenerationInfo[] generateMemberPrototypes(final PsiClass aClass, final ClassMember original) throws IncorrectOperationException {
+    protected GenerationInfo[] generateMemberPrototypes(final PsiClass clazz, final ClassMember original) throws IncorrectOperationException {
         final List<GenerationInfo> out = new ArrayList<GenerationInfo>(3);
-        final PropertiesState properties = getProperties(aClass);
+        final PropertiesState properties = getProperties(clazz);
 
         if (properties.isFieldTemplateEnabled() || properties.isMethodTemplateEnabled()) {
             if (original instanceof PsiFieldMember) {
                 final PsiFieldMember psiFieldMember = (PsiFieldMember) original;
                 final PsiField field = psiFieldMember.getElement();
-                final PsiMethod getterMethod = generateGetter(field);
-                if (!methodExists(aClass, getterMethod)) {
-                    out.add(new PsiGenerationInfo<PsiMethod>(getterMethod));
-                }
-                addIfNotNull(out, tryGenerateFuField(aClass, field, getterMethod));
-                addIfNotNull(out, tryGenerateFuMethod(aClass, field, getterMethod));
+                final PsiMethod fieldGetter = generateGetter(field);
+
+                final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, fieldGetter, properties);
+                appendGetterIfNeed(out, clazz, fieldGetter, fuBuilder);
+                appendFuFieldIfNeed(clazz, out, fuBuilder);
+                appendFuMethodIfNeed(clazz, out, fuBuilder);
             }
         }
 
         return out.toArray(new GenerationInfo[out.size()]);
     }
 
+    private void appendFuMethodIfNeed(final PsiClass clazz, final List<GenerationInfo> out, final FuBuilder fuBuilder) {
+        addIfNotNull(out, tryGenerateFuMethod(clazz, fuBuilder));
+    }
+
+    private void appendFuFieldIfNeed(final PsiClass clazz, final List<GenerationInfo> out, final FuBuilder fuBuilder) {
+        addIfNotNull(out, tryGenerateFuField(clazz, fuBuilder));
+    }
+
+    private void appendGetterIfNeed(final List<GenerationInfo> out, final PsiClass clazz, final PsiMethod fieldGetter, final FuBuilder fuBuilder) {
+        if (fuBuilder.isNeedGetter()) {
+            if (!methodExists(clazz, fieldGetter)) {
+                out.add(new PsiGenerationInfo<PsiMethod>(fieldGetter));
+            }
+        }
+    }
+
     private PropertiesState getProperties(final PsiClass aClass) {
         final PersistentStateProperties state = PersistentStateProperties.getInstance(aClass.getProject());
-        //todo: get by registered-action
         final List<? extends PropertiesState> propertiesList = state.getProperties();
-        return propertiesList.get(0);
+        return propertiesList.get(actionIndex);
     }
 
     @Nullable
-    private PsiGenerationInfo<PsiField> tryGenerateFuField(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-        final PropertiesState properties = getProperties(clazz);
-        if (properties.isFieldTemplateEnabled()) {
-            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod, properties);
-            final String fuText = fuBuilder.buildFuFieldText();
-            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
+    private PsiGenerationInfo<PsiField> tryGenerateFuField(final PsiClass clazz, final FuBuilder fuBuilder) {
+        final String fuText = fuBuilder.buildFuFieldText();
+        if (fuText != null && !fuText.isEmpty()) {
+            final Project project = clazz.getProject();
+            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
             final PsiField fieldFromText = elementFactory.createFieldFromText(fuText, clazz);
             final PsiField existsFieldFu = clazz.findFieldByName(fieldFromText.getName(), false);
             if (existsFieldFu == null) {
@@ -94,13 +110,14 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
     }
 
     @Nullable
-    private PsiGenerationInfo<PsiMethod> tryGenerateFuMethod(final PsiClass clazz, final PsiField field, final PsiMethod getterMethod) {
-        final PropertiesState properties = getProperties(clazz);
-        if (properties.isMethodTemplateEnabled()) {
-            final FuBuilder fuBuilder = FuBuilder.getInstance(clazz, field, getterMethod, properties);
-            final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(clazz.getProject());
-            final String fuMethodText = fuBuilder.buildFuMethodText();
-            final PsiMethod methodFromText = elementFactory.createMethodFromText(fuMethodText, clazz);
+    private PsiGenerationInfo<PsiMethod> tryGenerateFuMethod(final PsiClass clazz, final FuBuilder fuBuilder) {
+
+        final Project project = clazz.getProject();
+        final PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
+        final String fuMethodText = fuBuilder.buildFuMethodText();
+        if (fuMethodText != null && !fuMethodText.isEmpty()) {
+            final LanguageLevel languageLevel = LanguageLevelProjectExtension.getInstance(project).getLanguageLevel();
+            final PsiMethod methodFromText = elementFactory.createMethodFromText(fuMethodText, clazz, languageLevel);
             final PsiMethod[] existsMethods = clazz.findMethodsByName(methodFromText.getName(), false);
             if (existsMethods.length == 0) {
                 return new PsiGenerationInfo<PsiMethod>(methodFromText);
@@ -188,5 +205,4 @@ public class GenerateFieldFunctionsActionHandler extends GenerateMembersHandlerB
         }
         return out.toArray(new ClassMember[out.size()]);
     }
-
 }

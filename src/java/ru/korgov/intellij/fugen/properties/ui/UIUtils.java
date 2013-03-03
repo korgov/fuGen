@@ -9,23 +9,24 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.ScrollingModel;
+import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.uiDesigner.core.GridConstraints;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
+import javax.swing.JComponent;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Author: Kirill Korgov (korgov@yandex-team.ru))
  * Date: 02.03.13 2:53
  */
-public class Utils {
+public class UIUtils {
 
     private static final GridConstraints DEFAULT_CONSTRAINTS = new GridConstraints(0, 0, 1, 1,
             GridConstraints.ANCHOR_CENTER,
@@ -48,14 +49,16 @@ public class Utils {
         };
     }
 
-    public static Editor createEditor(final boolean isViewer, final boolean isTemplate) {
+    public static EditorEx createEditor(final boolean isViewer, final boolean isTemplate) {
         final EditorFactory editorFactory = EditorFactory.getInstance();
         final Document document = editorFactory.createDocument("");
-        final Editor editor = editorFactory.createEditor(document, null, JavaFileType.INSTANCE, isViewer);
+        final EditorEx editor = (EditorEx) editorFactory.createEditor(document, null, JavaFileType.INSTANCE, isViewer);
         editor.getSettings().setLineNumbersShown(false);
         editor.getSettings().setVirtualSpace(false);
         editor.getSettings().setWhitespacesShown(true);
         editor.getSettings().setAdditionalLinesCount(0);
+        editor.getScrollPane().setAutoscrolls(false);
+
 
         if (isTemplate) {
             final TemplateContext contextByType = new TemplateContext();
@@ -67,21 +70,23 @@ public class Utils {
     }
 
 
-    public static void setTextFafety(final Editor editor, final String text) {
+    public static void setTextFafety(final EditorEx editor, final String text) {
         final JComponent component = editor.getComponent();
         final CaretModel caretModel = editor.getCaretModel();
-        final ScrollingModel scrollingModel = editor.getScrollingModel();
+        final JScrollPane scrollPane = editor.getScrollPane();
         final Document document = editor.getDocument();
+        final JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+        final JScrollBar horizontalScrollBar = scrollPane.getHorizontalScrollBar();
 
         final Dimension oldPrefSize = component.getPreferredSize();
         final int caretOffset = caretModel.getOffset();
-        final int horizontalScrollOffset = scrollingModel.getHorizontalScrollOffset();
-        final int verticalScrollOffset = scrollingModel.getVerticalScrollOffset();
+        final int horizontalScrollValue = horizontalScrollBar.getValue();
+        final int verticalScrollValue = verticalScrollBar.getValue();
 
         document.setText(text);
 
-        scrollingModel.scrollHorizontally(Math.min(horizontalScrollOffset, document.getLineEndOffset(0)));
-        scrollingModel.scrollVertically(Math.min(verticalScrollOffset, document.getLineCount()));
+        horizontalScrollBar.setValue(Math.min(horizontalScrollBar.getMaximum(), horizontalScrollValue));
+        verticalScrollBar.setValue(Math.min(verticalScrollBar.getMaximum(), verticalScrollValue));
         caretModel.moveToOffset(Math.min(caretOffset, text.length()));
         component.setPreferredSize(oldPrefSize);
     }
@@ -95,11 +100,6 @@ public class Utils {
     }
 
 
-
-
-
-
-
-    private Utils() {
+    private UIUtils() {
     }
 }

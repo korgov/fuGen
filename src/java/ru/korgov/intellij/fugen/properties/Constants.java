@@ -3,6 +3,7 @@ package ru.korgov.intellij.fugen.properties;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Author: Kirill Korgov (kirill@korgov.ru)
@@ -65,6 +66,13 @@ public class Constants {
 
         private static String wrapRegexpVar(final String name) {
             return "\\$" + name + "\\$";
+        }
+    }
+
+    public static class Patterns {
+        public static final Pattern FIELD_GETTER_VAR_P = Pattern.compile(Vars.FIELD_GETTER_VAR);
+
+        private Patterns() {
         }
     }
 

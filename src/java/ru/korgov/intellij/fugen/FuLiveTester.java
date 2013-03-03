@@ -1,6 +1,5 @@
-package ru.korgov.intellij.fugen.properties.ui;
+package ru.korgov.intellij.fugen;
 
-import ru.korgov.intellij.fugen.FuBuilder;
 import ru.korgov.intellij.fugen.properties.PropertiesState;
 
 /**
@@ -26,12 +25,11 @@ public class FuLiveTester {
     public String buildTestText(final PropertiesState state) {
         fuBuilder.setFuClassName(state.getFuClassName())
                 .setFuFieldTemplate(state.getFuFieldTemplate())
-                .setFuMethodTemplate(state.getFuMethodTemplate());
+                .setFuMethodTemplate(state.getFuMethodTemplate())
+                .setFuFieldEnabled(state.isFieldTemplateEnabled())
+                .setFuMethodEnabled(state.isMethodTemplateEnabled());
 
-
-        final String fuFieldText = state.isFieldTemplateEnabled() ? fuBuilder.buildFuFieldText() : "";
-        final String fuMethodText = state.isMethodTemplateEnabled() ? fuBuilder.buildFuMethodText() : "";
-        return buildTestText(fuFieldText, fuMethodText);
+        return buildTestText(fuBuilder.buildFuFieldText(), fuBuilder.buildFuMethodText());
     }
 
     private String buildTestText(final String fuFieldText, final String fuMethodText) {
@@ -40,9 +38,8 @@ public class FuLiveTester {
                 "    public " + fieldType + " " + getterMethodName + "() {\n" +
                 "        return " + fieldName + ";\n" +
                 "    }\n\n" +
-                "    " + fuFieldText.replaceAll("\\n", "\n    ") +
-                "\n\n" +
-                "    " + fuMethodText.replaceAll("\\n", "\n    ") +
+                "    " + (fuFieldText.replaceAll("\\n", "\n    ") + "\n\n" +
+                        "    " + fuMethodText.replaceAll("\\n", "\n    ")).trim() +
                 "\n}";
     }
 

@@ -7,6 +7,10 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
  * Date: 05.12.12
  */
 
+/**
+ * Dynamic registeration
+ */
+@SuppressWarnings("ComponentNotRegistered")
 public class GenerateFieldFunctionsAction extends BaseGenerateAction {
     public GenerateFieldFunctionsAction(final String text, final int index) {
         super(new GenerateFieldFunctionsActionHandler(text, index));
