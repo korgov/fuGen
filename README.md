@@ -15,9 +15,9 @@ fuGen Intellij IDEA Plugin
             Specifying generation template with vars from selected field context.
 
         Default shortcuts:
-            Code -&gt; Generate (Alt + Insert) -&gt; [YourAction] - Generate fields and methods 
+            Code -> Generate (Alt + Insert) -> [YourAction] - Generate fields and methods 
             by template specified for selected action
-            Settings Menu (Ctrl+Alt+S) -&gt; FuGen - Plugin properties
+            Settings Menu (Ctrl+Alt+S) -> FuGen - Plugin properties
         
         Please note: This plugin is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
         OF ANY KIND, either express or implied.
