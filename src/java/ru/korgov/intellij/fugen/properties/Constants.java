@@ -19,6 +19,7 @@ public class Constants {
                     "    public $" + Vars.FIELD_TYPE + "$ apply(final $" + Vars.THIS_TYPE + "$ arg) {\n" +
                     "        return arg.$" + Vars.FIELD_GETTER + "$();\n" +
                     "    }\n" +
+                    "    //Add or change actions in Project Settings -> FuGen" +
                     "};";
 
     public static final String DEFAULT_FU_METHOD_TEMPLATE =
