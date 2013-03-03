@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Author: Kirill Korgov (korgov@yandex-team.ru))
+ * Author: Kirill Korgov (kirill@korgov.ru))
  * Date: 01.03.13 23:24
  */
 public class PropsWinTest extends LightCodeInsightFixtureTestCase {

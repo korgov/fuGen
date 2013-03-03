@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Author: Kirill Korgov (korgov@yandex-team.ru))
+ * Author: Kirill Korgov (kirill@korgov.ru))
  * Date: 02.03.13 2:53
  */
 public class UIUtils {
