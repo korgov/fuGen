@@ -1,5 +1,6 @@
 package ru.korgov.intellij.fugen.properties.ui;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPlaces;
@@ -13,8 +14,8 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.korgov.intellij.fugen.properties.Constants;
 import ru.korgov.intellij.fugen.FuLiveTester;
+import ru.korgov.intellij.fugen.properties.Constants;
 import ru.korgov.intellij.fugen.properties.GeneratorPropertiesState;
 import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
 
@@ -81,7 +82,7 @@ public class PropertiesWindow {
         final ActionToolbar actionToolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.UNKNOWN, createActions(), true);
         toolbarPanel.add(actionToolbar.getComponent(), UIUtils.getDefaultConstraints());
 
-        updateExampleText();
+//        updateExampleText();
         addListeners();
 
         generatorsList.setModel(generatorsListModel);
@@ -100,11 +101,11 @@ public class PropertiesWindow {
     }
 
     private AnAction createMoveUpAction() {
-        return createMoveAction("Up", "Move selected action up", PlatformIcons.MOVE_UP_ICON, -1);
+        return createMoveAction("Up", "Move selected action up", AllIcons.Actions.MoveUp, -1);
     }
 
     private AnAction createMoveDownAction() {
-        return createMoveAction("Down", "Move selected action down", PlatformIcons.MOVE_DOWN_ICON, 1);
+        return createMoveAction("Down", "Move selected action down", AllIcons.Actions.MoveDown, 1);
     }
 
     private ActionGroup createMoveAction(final String name, final String description, final Icon icon, final int delta) {
@@ -280,13 +281,8 @@ public class PropertiesWindow {
 
     public void loadCurrentProperties(final PersistentStateProperties properties) {
         if (properties != null) {
-            ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                @Override
-                public void run() {
-                    reInitGenerators(properties);
-                    generatorsList.setSelectedIndex(0);
-                }
-            });
+            reInitGenerators(properties);
+//            generatorsList.setSelectedIndex(0);
         }
     }
 

@@ -18,7 +18,6 @@ import ru.korgov.intellij.fugen.properties.PersistentStateProperties;
 import ru.korgov.intellij.fugen.properties.ui.PropertiesWindow;
 import ru.korgov.intellij.fugen.properties.ui.UIUtils;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 
 /**
@@ -43,12 +42,6 @@ public class FuGenProjectComponent implements Configurable, ProjectComponent {
 
     @Nullable
     @Override
-    public Icon getIcon() {
-        return null;
-    }
-
-    @Nullable
-    @Override
     public String getHelpTopic() {
         return null;
     }
@@ -58,7 +51,7 @@ public class FuGenProjectComponent implements Configurable, ProjectComponent {
         if (propertiesWindow == null) {
             propertiesWindow = new PropertiesWindow();
         }
-        reset();
+//        reset();
         return propertiesWindow.getMainPanel();
     }
 

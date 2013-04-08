@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
  */
 public class Constants {
 
-    public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
+//    public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
+    public static final String DEFAULT_FU_CLASS_NAME = "ru.yandex.common.util.functional.Function";
 
     public static final String DEFAULT_FU_FIELD_TEMPLATE =
             "public static final $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> TO_$" + Vars.FIELD_NAME_ALL_BIG + "$ = new $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$>() {\n" +
@@ -19,8 +20,8 @@ public class Constants {
                     "    public $" + Vars.FIELD_TYPE + "$ apply(final $" + Vars.THIS_TYPE + "$ arg) {\n" +
                     "        return arg.$" + Vars.FIELD_GETTER + "$();\n" +
                     "    }\n" +
-                    "    //Add or change actions in Project Settings -> FuGen" +
-                    "\n};";
+//                    "    //Add or change actions in Project Settings -> FuGen\n" +
+                    "};";
 
     public static final String DEFAULT_FU_METHOD_TEMPLATE =
             "public static $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> as$" + Vars.FIELD_NAME_BIG + "$() {\n" +
