@@ -8,7 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/script" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="IDEA IU-129.161" jdkType="IDEA JDK" />
+    <orderEntry type="jdk" jdkName="IDEA IU-133.331" jdkType="IDEA JDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

@@ -32,7 +32,7 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     private List<GeneratorPropertiesState> properties = Constants.getDefaultProperties();
 
     public List<GeneratorPropertiesState> getProperties() {
-        return new ArrayList<GeneratorPropertiesState>(properties);
+        return new ArrayList<>(properties);
     }
 
     public void setProperties(final List<GeneratorPropertiesState> properties) {
@@ -40,7 +40,7 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
     }
 
     private List<GeneratorPropertiesState> doFullCopy(final List<GeneratorPropertiesState> properties) {
-        final List<GeneratorPropertiesState> res = new ArrayList<GeneratorPropertiesState>(properties.size());
+        final List<GeneratorPropertiesState> res = new ArrayList<>(properties.size());
         for (final GeneratorPropertiesState property : properties) {
             res.add(property.copy());
         }
@@ -62,6 +62,7 @@ public class PersistentStateProperties implements PersistentStateComponent<Persi
         return new PersistentStateProperties();
     }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

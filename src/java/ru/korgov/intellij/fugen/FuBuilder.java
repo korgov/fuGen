@@ -114,7 +114,6 @@ public class FuBuilder {
                 .setFieldType(field.getType().getCanonicalText())
                 .setFuFieldTemplate(properties.getFuFieldTemplate())
                 .setFuMethodTemplate(properties.getFuMethodTemplate())
-                .setFuClassName(properties.getFuClassName())
                 .setGetterMethodName(getterMethod.getName())
                 .setFuFieldEnabled(properties.isFieldTemplateEnabled())
                 .setFuMethodEnabled(properties.isMethodTemplateEnabled());

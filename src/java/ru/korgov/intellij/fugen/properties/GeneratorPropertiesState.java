@@ -8,12 +8,11 @@ public class GeneratorPropertiesState implements PropertiesState {
 
     private String generatorName = Constants.DEFAULT_GENERATOR_NAME;
 
-    private String fuClassName = Constants.DEFAULT_FU_CLASS_NAME;
     private String fuFieldTemplate = Constants.DEFAULT_FU_FIELD_TEMPLATE;
     private String fuMethodTemplate = Constants.DEFAULT_FU_METHOD_TEMPLATE;
 
-    private boolean fieldTemplateEnabled = true;
-    private boolean methodTemplateEnabled = false;
+    private boolean fieldTemplateEnabled = false;
+    private boolean methodTemplateEnabled = true;
 
     public GeneratorPropertiesState() {
     }
@@ -38,15 +37,6 @@ public class GeneratorPropertiesState implements PropertiesState {
 
     public void setMethodTemplateEnabled(final boolean methodTemplateEnabled) {
         this.methodTemplateEnabled = methodTemplateEnabled;
-    }
-
-    @Override
-    public String getFuClassName() {
-        return fuClassName;
-    }
-
-    public void setFuClassName(final String fuClassName) {
-        this.fuClassName = fuClassName;
     }
 
     @Override
@@ -87,6 +77,7 @@ public class GeneratorPropertiesState implements PropertiesState {
 //        XmlSerializerUtil.copyBean(state, this);
 //    }
 
+    @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -96,7 +87,6 @@ public class GeneratorPropertiesState implements PropertiesState {
 
         if (fieldTemplateEnabled != that.fieldTemplateEnabled) return false;
         if (methodTemplateEnabled != that.methodTemplateEnabled) return false;
-        if (fuClassName != null ? !fuClassName.equals(that.fuClassName) : that.fuClassName != null) return false;
         if (fuFieldTemplate != null ? !fuFieldTemplate.equals(that.fuFieldTemplate) : that.fuFieldTemplate != null)
             return false;
         if (fuMethodTemplate != null ? !fuMethodTemplate.equals(that.fuMethodTemplate) : that.fuMethodTemplate != null)
@@ -110,7 +100,6 @@ public class GeneratorPropertiesState implements PropertiesState {
     @Override
     public int hashCode() {
         int result = generatorName != null ? generatorName.hashCode() : 0;
-        result = 31 * result + (fuClassName != null ? fuClassName.hashCode() : 0);
         result = 31 * result + (fuFieldTemplate != null ? fuFieldTemplate.hashCode() : 0);
         result = 31 * result + (fuMethodTemplate != null ? fuMethodTemplate.hashCode() : 0);
         result = 31 * result + (fieldTemplateEnabled ? 1 : 0);
@@ -121,7 +110,6 @@ public class GeneratorPropertiesState implements PropertiesState {
     public GeneratorPropertiesState copy() {
         final GeneratorPropertiesState out = new GeneratorPropertiesState();
         out.setGeneratorName(generatorName);
-        out.setFuClassName(fuClassName);
         out.setFuFieldTemplate(fuFieldTemplate);
         out.setFuMethodTemplate(fuMethodTemplate);
         out.setFieldTemplateEnabled(fieldTemplateEnabled);
@@ -132,7 +120,6 @@ public class GeneratorPropertiesState implements PropertiesState {
     public static GeneratorPropertiesState empty() {
         final GeneratorPropertiesState out = new GeneratorPropertiesState();
         out.setGeneratorName("");
-        out.setFuClassName("");
         out.setFuFieldTemplate("");
         out.setFuMethodTemplate("");
         out.setFieldTemplateEnabled(false);

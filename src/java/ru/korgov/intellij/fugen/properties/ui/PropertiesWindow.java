@@ -27,7 +27,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.util.ArrayList;
@@ -40,7 +39,6 @@ import java.util.List;
 public class PropertiesWindow {
 
     private JPanel mainPanel;
-    private JTextField fuClassTextField;
     private JPanel examplePane;
     private JPanel fieldTemplatePane;
     private JLabel varsHelpLabel;
@@ -48,18 +46,18 @@ public class PropertiesWindow {
     private JCheckBox staticMethodTemplateCheckBox;
     private JCheckBox staticFieldTemplateCheckBox;
     private JPanel toolbarPanel;
-    private JList generatorsList;
+    private JList<String> generatorsList;
     private JSplitPane mainSplitPane;
     private JTabbedPane templatesTabbedPane;
     private final EditorEx exampleViewer;
     private final EditorEx fieldTemplateEditor;
     private final EditorEx methodTemplateEditor;
 
-    private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "long", "getId");
+    private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "Long", "getId");
 
-    private final DefaultListModel generatorsListModel = new DefaultListModel();
+    private final DefaultListModel<String> generatorsListModel = new DefaultListModel<>();
 
-    private final List<GeneratorPropertiesState> generatorsProps = new ArrayList<GeneratorPropertiesState>();
+    private final List<GeneratorPropertiesState> generatorsProps = new ArrayList<>();
 
     private
     @Nullable
@@ -118,7 +116,7 @@ public class PropertiesWindow {
                     if (newIndex >= 0 && newIndex < generatorsProps.size()) {
 
                         final GeneratorPropertiesState removedState = generatorsProps.remove(selectedIndex);
-                        final Object removedLabel = generatorsListModel.remove(selectedIndex);
+                        final String removedLabel = generatorsListModel.remove(selectedIndex);
 
                         generatorsProps.add(newIndex, removedState);
                         generatorsListModel.add(newIndex, removedLabel);
@@ -206,7 +204,6 @@ public class PropertiesWindow {
             }
         });
 
-        fuClassTextField.addKeyListener(listener.asKeyL());
         fieldTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
         methodTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
         staticFieldTemplateCheckBox.addChangeListener(listener.asChangeL());
@@ -245,7 +242,6 @@ public class PropertiesWindow {
     }
 
     private void loadFromState(final @NotNull GeneratorPropertiesState state) {
-        fuClassTextField.setText(state.getFuClassName());
         UIUtils.setTextFafety(fieldTemplateEditor, state.getFuFieldTemplate());
         UIUtils.setTextFafety(methodTemplateEditor, state.getFuMethodTemplate());
         staticFieldTemplateCheckBox.setSelected(state.isFieldTemplateEnabled());
@@ -260,7 +256,6 @@ public class PropertiesWindow {
     }
 
     private void saveCurrentStateTo(final @NotNull GeneratorPropertiesState state) {
-        state.setFuClassName(fuClassTextField.getText());
         state.setFuFieldTemplate(fieldTemplateEditor.getDocument().getText());
         state.setFuMethodTemplate(methodTemplateEditor.getDocument().getText());
         state.setFieldTemplateEnabled(staticFieldTemplateCheckBox.isSelected());

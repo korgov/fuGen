@@ -23,8 +23,7 @@ public class FuLiveTester {
     }
 
     public String buildTestText(final PropertiesState state) {
-        fuBuilder.setFuClassName(state.getFuClassName())
-                .setFuFieldTemplate(state.getFuFieldTemplate())
+        fuBuilder.setFuFieldTemplate(state.getFuFieldTemplate())
                 .setFuMethodTemplate(state.getFuMethodTemplate())
                 .setFuFieldEnabled(state.isFieldTemplateEnabled())
                 .setFuMethodEnabled(state.isMethodTemplateEnabled());

@@ -11,24 +11,22 @@ import java.util.regex.Pattern;
  */
 public class Constants {
 
-//    public static final String DEFAULT_FU_CLASS_NAME = "ru.korgov.util.func.Function";
-    public static final String DEFAULT_FU_CLASS_NAME = "ru.yandex.common.util.functional.Function";
-
     public static final String DEFAULT_FU_FIELD_TEMPLATE =
-            "public static final $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> TO_$" + Vars.FIELD_NAME_ALL_BIG + "$ = new $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$>() {\n" +
-                    "    @Override\n" +
-                    "    public $" + Vars.FIELD_TYPE + "$ apply(final $" + Vars.THIS_TYPE + "$ arg) {\n" +
-                    "        return arg.$" + Vars.FIELD_GETTER + "$();\n" +
-                    "    }\n" +
-//                    "    //Add or change actions in Project Settings -> FuGen\n" +
-                    "};";
+        "public static final java.util.Comparator<$" + Vars.THIS_TYPE + "$> BY_$" + Vars.FIELD_NAME_ALL_BIG + "$ = new java.util.Comparator<$" + Vars.THIS_TYPE + "$>() {\n" +
+            "    @Override\n" +
+            "    public int compare(final $" + Vars.THIS_TYPE + "$ o1, final $" + Vars.THIS_TYPE + "$ o2) {\n" +
+            "        return o1.$" + Vars.FIELD_NAME + "$.compareTo(o2.$" + Vars.FIELD_NAME + "$);\n" +
+            "    }\n" +
+                    "    //Add or change actions in Project Settings -> FuGen\n" +
+            "};";
 
     public static final String DEFAULT_FU_METHOD_TEMPLATE =
-            "public static $" + Vars.FU_CLASS + "$<$" + Vars.THIS_TYPE + "$, $" + Vars.FIELD_TYPE + "$> as$" + Vars.FIELD_NAME_BIG + "$() {\n" +
-                    "    return TO_$" + Vars.FIELD_NAME_ALL_BIG + "$;\n" +
+            "public $" + Vars.THIS_TYPE + "$ set$" + Vars.FIELD_NAME_BIG + "$(final $" + Vars.FIELD_TYPE + "$ $" + Vars.FIELD_NAME + "$) {\n" +
+                    "    this.$" + Vars.FIELD_NAME + "$ = $" + Vars.FIELD_NAME + "$;\n" +
+                    "    return this;\n" +
                     "}";
 
-    public static final String DEFAULT_GENERATOR_NAME = "Functions";
+    public static final String DEFAULT_GENERATOR_NAME = "BuilderSetter";
 
     public static List<GeneratorPropertiesState> getDefaultProperties() {
         return Arrays.asList(new GeneratorPropertiesState());
@@ -36,6 +34,7 @@ public class Constants {
 
 
     public static class Vars {
+        @Deprecated
         public static final String FU_CLASS = "FuClass";
         public static final String THIS_TYPE = "ThisType";
         public static final String FIELD_TYPE = "FieldType";
