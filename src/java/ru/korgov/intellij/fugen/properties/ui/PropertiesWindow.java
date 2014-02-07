@@ -46,7 +46,7 @@ public class PropertiesWindow {
     private JCheckBox staticMethodTemplateCheckBox;
     private JCheckBox staticFieldTemplateCheckBox;
     private JPanel toolbarPanel;
-    private JList<String> generatorsList;
+    private JList generatorsList;
     private JSplitPane mainSplitPane;
     private JTabbedPane templatesTabbedPane;
     private final EditorEx exampleViewer;
@@ -55,9 +55,9 @@ public class PropertiesWindow {
 
     private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "Long", "getId");
 
-    private final DefaultListModel<String> generatorsListModel = new DefaultListModel<>();
+    private final DefaultListModel generatorsListModel = new DefaultListModel();
 
-    private final List<GeneratorPropertiesState> generatorsProps = new ArrayList<>();
+    private final List<GeneratorPropertiesState> generatorsProps = new ArrayList<GeneratorPropertiesState>();
 
     private
     @Nullable
@@ -116,7 +116,7 @@ public class PropertiesWindow {
                     if (newIndex >= 0 && newIndex < generatorsProps.size()) {
 
                         final GeneratorPropertiesState removedState = generatorsProps.remove(selectedIndex);
-                        final String removedLabel = generatorsListModel.remove(selectedIndex);
+                        final Object removedLabel = generatorsListModel.remove(selectedIndex);
 
                         generatorsProps.add(newIndex, removedState);
                         generatorsListModel.add(newIndex, removedLabel);
