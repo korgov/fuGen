@@ -26,7 +26,9 @@ public class FuLiveTester {
         fuBuilder.setFuFieldTemplate(state.getFuFieldTemplate())
                 .setFuMethodTemplate(state.getFuMethodTemplate())
                 .setFuFieldEnabled(state.isFieldTemplateEnabled())
-                .setFuMethodEnabled(state.isMethodTemplateEnabled());
+                .setFuMethodEnabled(state.isMethodTemplateEnabled())
+                .setStripPrefixEnabled(state.isStripPrefixEnabled())
+                .setPrefixStripPattern(state.getStripPrefixPattern());
 
         return buildTestText(fuBuilder.buildFuFieldText(), fuBuilder.buildFuMethodText());
     }

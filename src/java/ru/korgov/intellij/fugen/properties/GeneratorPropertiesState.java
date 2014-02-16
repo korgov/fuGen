@@ -13,6 +13,8 @@ public class GeneratorPropertiesState implements PropertiesState {
 
     private boolean fieldTemplateEnabled = false;
     private boolean methodTemplateEnabled = true;
+    private boolean stripPrefixEnabled = true;
+    private String stripPrefixPattern = "^_|^my";
 
     public GeneratorPropertiesState() {
     }
@@ -33,6 +35,16 @@ public class GeneratorPropertiesState implements PropertiesState {
     @Override
     public boolean isMethodTemplateEnabled() {
         return methodTemplateEnabled;
+    }
+
+    @Override
+    public boolean isStripPrefixEnabled() {
+        return stripPrefixEnabled;
+    }
+
+    @Override
+    public String getStripPrefixPattern() {
+        return stripPrefixPattern;
     }
 
     public void setMethodTemplateEnabled(final boolean methodTemplateEnabled) {
@@ -66,7 +78,15 @@ public class GeneratorPropertiesState implements PropertiesState {
         this.fuFieldTemplate = fuFieldTemplate;
     }
 
-//    @Override
+    public void setStripPrefixEnabled(final boolean stripPrefixEnabled) {
+        this.stripPrefixEnabled = stripPrefixEnabled;
+    }
+
+    public void setStripPrefixPattern(final String stripPrefixPattern) {
+        this.stripPrefixPattern = stripPrefixPattern;
+    }
+
+    //    @Override
 //    @SuppressWarnings("ReturnOfThis")
 //    public GeneratorPropertiesState getState() {
 //        return this;
@@ -76,6 +96,19 @@ public class GeneratorPropertiesState implements PropertiesState {
 //    public void loadState(final GeneratorPropertiesState state) {
 //        XmlSerializerUtil.copyBean(state, this);
 //    }
+
+
+    @Override
+    public int hashCode() {
+        int result = generatorName != null ? generatorName.hashCode() : 0;
+        result = 31 * result + (fuFieldTemplate != null ? fuFieldTemplate.hashCode() : 0);
+        result = 31 * result + (fuMethodTemplate != null ? fuMethodTemplate.hashCode() : 0);
+        result = 31 * result + (fieldTemplateEnabled ? 1 : 0);
+        result = 31 * result + (methodTemplateEnabled ? 1 : 0);
+        result = 31 * result + (stripPrefixEnabled ? 1 : 0);
+        result = 31 * result + (stripPrefixPattern != null ? stripPrefixPattern.hashCode() : 0);
+        return result;
+    }
 
     @SuppressWarnings("RedundantIfStatement")
     @Override
@@ -87,24 +120,17 @@ public class GeneratorPropertiesState implements PropertiesState {
 
         if (fieldTemplateEnabled != that.fieldTemplateEnabled) return false;
         if (methodTemplateEnabled != that.methodTemplateEnabled) return false;
+        if (stripPrefixEnabled != that.stripPrefixEnabled) return false;
         if (fuFieldTemplate != null ? !fuFieldTemplate.equals(that.fuFieldTemplate) : that.fuFieldTemplate != null)
             return false;
         if (fuMethodTemplate != null ? !fuMethodTemplate.equals(that.fuMethodTemplate) : that.fuMethodTemplate != null)
             return false;
         if (generatorName != null ? !generatorName.equals(that.generatorName) : that.generatorName != null)
             return false;
+        if (stripPrefixPattern != null ? !stripPrefixPattern.equals(that.stripPrefixPattern) : that.stripPrefixPattern != null)
+            return false;
 
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = generatorName != null ? generatorName.hashCode() : 0;
-        result = 31 * result + (fuFieldTemplate != null ? fuFieldTemplate.hashCode() : 0);
-        result = 31 * result + (fuMethodTemplate != null ? fuMethodTemplate.hashCode() : 0);
-        result = 31 * result + (fieldTemplateEnabled ? 1 : 0);
-        result = 31 * result + (methodTemplateEnabled ? 1 : 0);
-        return result;
     }
 
     public GeneratorPropertiesState copy() {
@@ -114,6 +140,8 @@ public class GeneratorPropertiesState implements PropertiesState {
         out.setFuMethodTemplate(fuMethodTemplate);
         out.setFieldTemplateEnabled(fieldTemplateEnabled);
         out.setMethodTemplateEnabled(methodTemplateEnabled);
+        out.setStripPrefixEnabled(stripPrefixEnabled);
+        out.setStripPrefixPattern(stripPrefixPattern);
         return out;
     }
 
@@ -124,6 +152,8 @@ public class GeneratorPropertiesState implements PropertiesState {
         out.setFuMethodTemplate("");
         out.setFieldTemplateEnabled(false);
         out.setMethodTemplateEnabled(false);
+        out.setStripPrefixEnabled(false);
+        out.setStripPrefixPattern("");
         return out;
     }
 }

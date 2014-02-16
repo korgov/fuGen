@@ -7,6 +7,8 @@ import com.intellij.psi.util.PsiTypesUtil;
 import ru.korgov.intellij.fugen.properties.Constants;
 import ru.korgov.intellij.fugen.properties.PropertiesState;
 
+import java.util.regex.Pattern;
+
 /**
  * Author: Kirill Korgov (kirill@korgov.ru))
  * Date: 2/24/13 8:52 PM
@@ -14,7 +16,6 @@ import ru.korgov.intellij.fugen.properties.PropertiesState;
 public class FuBuilder {
     private String fuFieldTemplate;
     private String fuMethodTemplate;
-    private String fuClassName;
     private String className;
     private String fieldName;
     private String fieldType;
@@ -22,6 +23,8 @@ public class FuBuilder {
 
     private boolean isFuFieldEnabled;
     private boolean isFuMethodEnabled;
+    private boolean isStripPrefixEnabled;
+    private Pattern prefixStripPattern;
 
     public String buildFuFieldText() {
         return isFuFieldEnabled ? buildByTemplate(fuFieldTemplate) : "";
@@ -32,14 +35,18 @@ public class FuBuilder {
     }
 
     public String buildByTemplate(final String template) {
+        final String strippedFieldName = stripPrefix(fieldName);
         return template
-                .replaceAll(Constants.Vars.FU_CLASS_NAME_VAR, fuClassName)
                 .replaceAll(Constants.Vars.THIS_TYPE_VAR, className)
                 .replaceAll(Constants.Vars.FIELD_TYPE_VAR, fieldType)
                 .replaceAll(Constants.Vars.FIELD_GETTER_VAR, getterMethodName)
                 .replaceAll(Constants.Vars.FIELD_NAME_VAR, fieldName)
-                .replaceAll(Constants.Vars.FIELD_NAME_UPPER_VAR, upFirstChar(fieldName))
-                .replaceAll(Constants.Vars.FIELD_NAME_ALL_BIG_VAR, buildConstFieldName(fieldName));
+                .replaceAll(Constants.Vars.FIELD_NAME_UPPER_VAR, upFirstChar(strippedFieldName))
+                .replaceAll(Constants.Vars.FIELD_NAME_ALL_BIG_VAR, buildConstFieldName(strippedFieldName));
+    }
+
+    private String stripPrefix(final String fieldName) {
+        return isStripPrefixEnabled ? prefixStripPattern.matcher(fieldName).replaceFirst("") : fieldName;
     }
 
     public boolean isNeedGetter() {
@@ -81,11 +88,6 @@ public class FuBuilder {
         return this;
     }
 
-    public FuBuilder setFuClassName(final String fuClassName) {
-        this.fuClassName = fuClassName;
-        return this;
-    }
-
     public FuBuilder setClassName(final String className) {
         this.className = className;
         return this;
@@ -116,7 +118,9 @@ public class FuBuilder {
                 .setFuMethodTemplate(properties.getFuMethodTemplate())
                 .setGetterMethodName(getterMethod.getName())
                 .setFuFieldEnabled(properties.isFieldTemplateEnabled())
-                .setFuMethodEnabled(properties.isMethodTemplateEnabled());
+                .setFuMethodEnabled(properties.isMethodTemplateEnabled())
+                .setStripPrefixEnabled(properties.isStripPrefixEnabled())
+                .setPrefixStripPattern(properties.getStripPrefixPattern());
     }
 
     public FuBuilder setFuMethodTemplate(final String fuMethodTemplate) {
@@ -131,6 +135,16 @@ public class FuBuilder {
 
     public FuBuilder setFuMethodEnabled(final boolean fuMethodEnabled) {
         isFuMethodEnabled = fuMethodEnabled;
+        return this;
+    }
+
+    public FuBuilder setStripPrefixEnabled(final Boolean isStripPrefixEnabled) {
+        this.isStripPrefixEnabled = isStripPrefixEnabled;
+        return this;
+    }
+
+    public FuBuilder setPrefixStripPattern(final String prefixStripPattern) {
+        this.prefixStripPattern = Pattern.compile(prefixStripPattern);
         return this;
     }
 }

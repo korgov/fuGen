@@ -13,5 +13,9 @@ public interface PropertiesState {
 
     boolean isMethodTemplateEnabled();
 
+    boolean isStripPrefixEnabled();
+
+    String getStripPrefixPattern();
+
     String getGeneratorName();
 }

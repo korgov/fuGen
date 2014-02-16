@@ -27,6 +27,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.util.ArrayList;
@@ -49,11 +50,13 @@ public class PropertiesWindow {
     private JList generatorsList;
     private JSplitPane mainSplitPane;
     private JTabbedPane templatesTabbedPane;
+    private JCheckBox cutPrefixCheckBox;
+    private JTextField cutPrefixPatternTextField;
     private final EditorEx exampleViewer;
     private final EditorEx fieldTemplateEditor;
     private final EditorEx methodTemplateEditor;
 
-    private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "id", "Long", "getId");
+    private final FuLiveTester fuLiveTester = new FuLiveTester("MyClass", "name", "String", "getName");
 
     private final DefaultListModel generatorsListModel = new DefaultListModel();
 
@@ -206,9 +209,10 @@ public class PropertiesWindow {
 
         fieldTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
         methodTemplateEditor.getDocument().addDocumentListener(listener.asDocumentL());
+        cutPrefixPatternTextField.addKeyListener(listener.asKeyL());
         staticFieldTemplateCheckBox.addChangeListener(listener.asChangeL());
         staticMethodTemplateCheckBox.addChangeListener(listener.asChangeL());
-
+        cutPrefixCheckBox.addChangeListener(listener.asChangeL());
         generatorsList.addListSelectionListener(getGeneratorSelectionListener());
     }
 
@@ -244,8 +248,10 @@ public class PropertiesWindow {
     private void loadFromState(final @NotNull GeneratorPropertiesState state) {
         UIUtils.setTextFafety(fieldTemplateEditor, state.getFuFieldTemplate());
         UIUtils.setTextFafety(methodTemplateEditor, state.getFuMethodTemplate());
+        cutPrefixPatternTextField.setText(state.getStripPrefixPattern());
         staticFieldTemplateCheckBox.setSelected(state.isFieldTemplateEnabled());
         staticMethodTemplateCheckBox.setSelected(state.isMethodTemplateEnabled());
+        cutPrefixCheckBox.setSelected(state.isStripPrefixEnabled());
         templatesTabbedPane.setSelectedIndex(state.isFieldTemplateEnabled() ? 0 : 1);
     }
 
@@ -258,8 +264,10 @@ public class PropertiesWindow {
     private void saveCurrentStateTo(final @NotNull GeneratorPropertiesState state) {
         state.setFuFieldTemplate(fieldTemplateEditor.getDocument().getText());
         state.setFuMethodTemplate(methodTemplateEditor.getDocument().getText());
+        state.setStripPrefixPattern(cutPrefixPatternTextField.getText());
         state.setFieldTemplateEnabled(staticFieldTemplateCheckBox.isSelected());
         state.setMethodTemplateEnabled(staticMethodTemplateCheckBox.isSelected());
+        state.setStripPrefixEnabled(cutPrefixCheckBox.isSelected());
     }
 
     private void updateExampleText() {
